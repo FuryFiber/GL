@@ -1,0 +1,23 @@
+{
+  "slug": "GL",
+  "name": "GL",
+  "version": "2.0.0",
+  "license": "proprietary",
+  "brand": "GL",
+  "author": "",
+  "authorEmail": "",
+  "authorUrl": "",
+  "pluginUrl": "",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "changelogUrl": "",
+  "modules": [
+    {
+      "slug": "VCO",
+      "name": "VCO",
+      "description": "",
+      "tags": []
+    }
+  ]
+}

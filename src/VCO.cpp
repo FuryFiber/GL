@@ -4,6 +4,9 @@
 
 struct VCO : Module {
     float phases[16] = {};
+    float normalizedFreqs[16] = {};
+    int steps = 0;
+    int polyphony = 1;
 	enum ParamId {
 		PITCH_PARAM,
 		PULSE_PARAM,
@@ -46,8 +49,36 @@ struct VCO : Module {
     }
 
     void process(const ProcessArgs& args) override {
+        // execute every 4 steps
+        steps = (steps + 1)%4;
+        if (steps == 0) {
+            process4steps(args);
+        }
+        // For every polyphony channel compute its outputs
+        for (int i = 0; i < polyphony; ++i) {
+            // Accumulate the phase
+            phases[i] += normalizedFreqs[i];
+            if (phases[i] >= 1.f){
+                phases[i] -= 1.f;
+            }
+
+            // Compute outputs
+            float sine = sin(2.f * M_PI * phases[i]);
+            float square = 4 * floor(phases[i]) - 2* floor(2* phases[i]) + 1;
+            float saw = (phases[i] -0.5)*2;
+            float triangle = (abs(saw) * 2) - 1;
+
+            // Send to output
+            outputs[SINE_OUTPUT].setVoltage(sine * 5.f, i);
+            outputs[TRIANGLE_OUTPUT].setVoltage(triangle * 5.f, i);
+            outputs[SAW_OUTPUT].setVoltage(saw * 5.f, i);
+            outputs[SQUARE_OUTPUT].setVoltage(square * 5.f, i);
+        }
+    }
+
+    void process4steps(const ProcessArgs& args){
         // Tell each output how many polyphony channels are used
-        int polyphony = std::max(1, inputs[VOCT_INPUT].getChannels());
+        polyphony = std::max(1, inputs[VOCT_INPUT].getChannels());
         outputs[SINE_OUTPUT].setChannels(polyphony);
         outputs[TRIANGLE_OUTPUT].setChannels(polyphony);
         outputs[SAW_OUTPUT].setChannels(polyphony);
@@ -56,10 +87,10 @@ struct VCO : Module {
         // Get pitch param
         float pitch = params[PITCH_PARAM].getValue();
 
-        // For every polyphony channel compute its outputs
-        for (int i = 0; i < polyphony; ++i){
+        // for each polyphony channel compute its frequency
+        for (int i = 0; i < polyphony; ++i) {
             float pitchCV = inputs[VOCT_INPUT].getVoltage(i);
-            float combinedpitch = pitch + pitchCV -4.f;
+            float combinedpitch = pitch + pitchCV - 4.f;
 
             // The default frequency is C4 = 261.6256f so tune pitch to C4
             combinedpitch += float(std::log2(261.626));
@@ -68,25 +99,7 @@ struct VCO : Module {
             float freq = dsp::exp2_taylor5(combinedpitch);
 
             // normalize
-            float normalizedFreq = args.sampleTime * freq;
-
-            // Accumulate the phase
-            phases[i] += normalizedFreq;
-            if (phases[i] >= 1.f){
-                phases[i] -= 1.f;
-            }
-
-            // Compute outputs
-            float sine = sin(2.f * M_PI * phases[i]);
-            float square = 4 * floor(phases[i]) - 2* floor(2* phases[i]) + 1;;
-            float saw = 2*(phases[i] - floor(1/2 + phases[i])) -1;;
-            float triangle = (abs(saw) * 2) - 1;
-
-            // Send to output
-            outputs[SINE_OUTPUT].setVoltage(sine * 5.f, i);
-            outputs[TRIANGLE_OUTPUT].setVoltage(triangle * 5.f, i);
-            outputs[SAW_OUTPUT].setVoltage(saw * 5.f, i);
-            outputs[SQUARE_OUTPUT].setVoltage(square * 5.f, i);
+            normalizedFreqs[i] = args.sampleTime * freq;
         }
     }
 };

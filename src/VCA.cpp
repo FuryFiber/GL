@@ -2,6 +2,13 @@
 
 
 struct VCA : Module {
+    int polyphony1 = 1;
+    int polyphony2 = 1;
+    float amp1 = 0.f;
+    float amp2 = 0.f;
+    bool mod1Connected = false;
+    bool mod2Connected = false;
+    int steps = 0;
 	enum ParamId {
 		AMP1_PARAM,
 		AMP2_PARAM,
@@ -56,7 +63,58 @@ struct VCA : Module {
 	}
 
 	void process(const ProcessArgs& args) override {
+        // only call every 4 ticks to save performance
+        steps = (steps + 1)%4;
+        if (steps == 0) {
+            process4steps(args);
+        }
+
+        // if mod1 is not connected use slider to control amplitude
+        if (!mod1Connected){
+            for (int i = 0; i < polyphony1; i++){
+                float amplitude = inputs[IN1_INPUT].getVoltage(i) * amp1;
+                outputs[OUT1_OUTPUT].setVoltage(amplitude, i);
+            }
+        }
+
+        // if connected use cv to control amplitude
+        else{
+            for (int i = 0; i < polyphony1; i++){
+                float amplitude = inputs[IN1_INPUT].getVoltage(i) * (inputs[MOD1_INPUT].getVoltage(i)/10.f);
+                outputs[OUT1_OUTPUT].setVoltage(amplitude, i);
+            }
+        }
+
+        // same for second channel
+        if (!mod2Connected){
+            for (int i = 0; i < polyphony2; i++){
+                float amplitude = inputs[IN2_INPUT].getVoltage(i) * amp2;
+                outputs[OUT2_OUTPUT].setVoltage(amplitude, i);
+            }
+        }
+        else{
+            for (int i = 0; i < polyphony2; i++){
+                float amplitude = inputs[IN2_INPUT].getVoltage(i) * (inputs[MOD2_INPUT].getVoltage(i)/10.f);
+                outputs[OUT2_OUTPUT].setVoltage(amplitude, i);
+            }
+        }
 	}
+
+    void process4steps(const ProcessArgs& args) {
+        // get and set polyphony channels
+        polyphony1 = inputs[IN1_INPUT].getChannels();
+        polyphony2 = inputs[IN2_INPUT].getChannels();
+        outputs[OUT1_OUTPUT].setChannels(polyphony1);
+        outputs[OUT2_OUTPUT].setChannels(polyphony2);
+
+        // read amplitude param
+        amp1 = params[AMP1_PARAM].getValue();
+        amp2 = params[AMP2_PARAM].getValue();
+
+        // read if modulation inputs are connected to overwrite the sliders
+        mod1Connected = inputs[MOD1_INPUT].isConnected();
+        mod2Connected = inputs[MOD2_INPUT].isConnected();
+    }
 };
 
 

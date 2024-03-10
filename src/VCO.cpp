@@ -10,6 +10,7 @@ struct VCO : Module {
     float pulsewidth = 0.5f;
     int steps = 0;
     int polyphony = 1;
+    int syncphase = 0;
     dsp::MinBlepGenerator<16,16,float> sawMinBleps[MAX_POLYPHONY];
     dsp::MinBlepGenerator<16,16,float> sqrMinBleps[MAX_POLYPHONY];
 	enum ParamId {

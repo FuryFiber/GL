@@ -24,6 +24,12 @@
       "name": "VCA",
       "description": "",
       "tags": []
+    },
+    {
+      "slug": "SpringMod",
+      "name": "SpringMod",
+      "description": "Modulation source based on damped spring oscillations",
+      "tags": []
     }
   ]
 }

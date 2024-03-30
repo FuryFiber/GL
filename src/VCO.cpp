@@ -117,7 +117,7 @@ struct VCO : Module {
                 }
 
                 // add minblep
-                square += minBlep;
+                //square += minBlep;
 
                 // send to output
                 outputs[SQUARE_OUTPUT].setVoltage(square * 5.f, i);
@@ -144,7 +144,7 @@ struct VCO : Module {
                 float saw = (phases[i] - 0.5)*2;
 
                 // add processed minblep to saw signal
-                saw += sawMinBlep;
+                //saw += sawMinBlep;
 
                 // send to output
                 outputs[SAW_OUTPUT].setVoltage(saw * 5.f, i);

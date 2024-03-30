@@ -1,7 +1,10 @@
 #include "plugin.hpp"
-
+#include "stdio.h"
+#include "cmath"
 
 struct SpringMod : Module {
+    float t = 0.f;
+    float A0 = 10.f;
 	enum ParamId {
 		MASS_PARAM,
 		VISC_PARAM,
@@ -28,12 +31,12 @@ struct SpringMod : Module {
 
 	SpringMod() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-		configParam(MASS_PARAM, 0.f, 1.f, 0.f, "Mass", " kg");
-		configParam(VISC_PARAM, 0.f, 1.f, 0.f, "Viscosity", " mPas");
-		configParam(SPRING_PARAM, 0.f, 1.f, 0.f, "Spring constant", "kN/m");
-		configParam(MASSMOD_PARAM, 0.f, 1.f, 0.f, "Mass modulation", "%", 0.f, 100.f);
-		configParam(SPRINGMOD_PARAM, 0.f, 1.f, 0.f, "Spring constant modulation", "%", 0.f, 100.f);
-		configParam(VISCMOD_PARAM, 0.f, 1.f, 0.f, "Viscosity modulation" ,"%", 0.f, 100.f);
+		configParam(MASS_PARAM, 0.1f, 100.f, 0.f, "Mass", " kg");
+		configParam(VISC_PARAM, 0.1f, 20.f, 0.f, "Viscosity", " mPas");
+		configParam(SPRING_PARAM, 0.1f, 20.f, 0.f, "Spring constant", "kN/m");
+		configParam(MASSMOD_PARAM, -1.f, 1.f, 0.f, "Mass modulation", "%", 0.f, 100.f);
+		configParam(SPRINGMOD_PARAM, -1.f, 1.f, 0.f, "Spring constant modulation", "%", 0.f, 100.f);
+		configParam(VISCMOD_PARAM, -1.f, 1.f, 0.f, "Viscosity modulation" ,"%", 0.f, 100.f);
 		configInput(MASSMOD_INPUT, "Mass modulation");
 		configInput(SPRINGMOD_INPUT, "Spring constant modulation");
 		configInput(VISCMOD_INPUT, "Viscosity modulation");
@@ -42,7 +45,23 @@ struct SpringMod : Module {
 	}
 
 	void process(const ProcessArgs& args) override {
-	}
+        // get inputs
+        float mass = params[MASS_PARAM].getValue() + inputs[MASSMOD_INPUT].getVoltage() * params[MASSMOD_PARAM].getValue();
+        float viscosity = params[VISC_PARAM].getValue() + inputs[VISCMOD_INPUT].getVoltage() * params[VISCMOD_PARAM].getValue();
+        float spring_constant = (params[SPRING_PARAM].getValue() + inputs[SPRINGMOD_INPUT].getVoltage() * params[SPRINGMOD_PARAM].getValue()) * 1000;
+        t += args.sampleTime;
+
+        // reset phase if trigger is on
+        if (inputs[TRIG_INPUT].getVoltage() > 0.f) {
+            t = 0;
+        }
+
+        // calculate output
+        float output = A0 * exp((-viscosity * t)/(2 * mass)) * cos(sqrt((spring_constant / mass) - pow((viscosity/2 * mass), 2)) * t);
+
+        // send to output
+        outputs[OUT_OUTPUT].setVoltage(output);
+    }
 };
 
 

@@ -160,24 +160,31 @@ struct VCA : Module {
 struct VCAWidget : ModuleWidget {
 	VCAWidget(VCA* module) {
 		setModule(module);
+
+        // get resource
 		setPanel(createPanel(asset::plugin(pluginInstance, "res/GL-VCA.svg")));
 
-		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        // add screws
+		addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH- 10, 0)));
+		addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH + 10, 0)));
+		addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH - 10, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+		addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH + 10, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
+        // param inputs
 		addParam(createParamCentered<VCVSlider>(mm2px(Vec(7.567, 41.052)), module, VCA::AMP1_PARAM));
 		addParam(createParamCentered<VCVSlider>(mm2px(Vec(22.913, 41.052)), module, VCA::AMP2_PARAM));
 
+        // cable inputs
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(7.567, 73.627)), module, VCA::MOD1_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(22.913, 73.627)), module, VCA::MOD2_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(7.567, 91.749)), module, VCA::IN1_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(22.913, 91.749)), module, VCA::IN2_INPUT));
 
-		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(7.567, 106.834)), module, VCA::OUT1_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(22.913, 106.834)), module, VCA::OUT2_OUTPUT));
+        // outputs
+		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(7.567, 108.950)), module, VCA::OUT1_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(22.913, 108.950)), module, VCA::OUT2_OUTPUT));
 
+        // lights
         addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(13.133, 62.706)), module, VCA::L1_1_LIGHT));
         addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(13.133, 57.894)), module, VCA::L1_2_LIGHT));
         addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(13.133, 53.082)), module, VCA::L1_3_LIGHT));

@@ -11,3 +11,5 @@ extern Plugin* pluginInstance;
 extern Model* modelVCO;
 extern Model* modelVCA;
 extern Model* modelSpringMod;
+extern Model* modelVCF;
+extern Model* modelLFO;

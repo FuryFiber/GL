@@ -30,6 +30,18 @@
       "name": "SpringMod",
       "description": "Modulation source based on damped spring oscillations",
       "tags": []
+    },
+    {
+      "slug": "VCF",
+      "name": "VCF",
+      "description": "Voltage controlled filter",
+      "tags": []
+    },
+    {
+      "slug": "LFO",
+      "name": "LFO",
+      "description": "",
+      "tags": []
     }
   ]
 }

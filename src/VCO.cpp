@@ -1,6 +1,5 @@
 #include "plugin.hpp"
 #include <math.h>
-#include "stdio.h"
 
 using float_4 = simd::float_4;
 const int maxPolyphony = 16;

@@ -1,5 +1,27 @@
 #include "plugin.hpp"
+#include <math.h>
+#include "stdio.h"
 
+using float_4 = simd::float_4;
+
+inline float_4 sinTwoPi(float_4 _x) {
+    const static float twoPi = 2 * 3.141592653589793238;
+    const static float pi =  3.141592653589793238;
+    _x -= ifelse((_x > float_4(pi)), float_4(twoPi), float_4::zero());
+
+    float_4 xneg = _x < float_4::zero();
+    float_4 xOffset = ifelse(xneg, float_4(pi / 2.f), float_4(-pi  / 2.f));
+    xOffset += _x;
+    float_4 xSquared = xOffset * xOffset;
+    float_4 ret = xSquared * float_4(1.f / 24.f);
+    float_4 correction = ret * xSquared *  float_4(.02 / .254);
+    ret += float_4(-.5);
+    ret *= xSquared;
+    ret += float_4(1.f);
+
+    ret -= correction;
+    return ifelse(xneg, -ret, ret);
+}
 
 struct LFO : Module {
 	enum ParamId {
@@ -27,12 +49,25 @@ struct LFO : Module {
 		LIGHTS_LEN
 	};
 
+    float_4 phaseAccumulator = 0;
+    float_4 phaseAdvance = 0;
+
+    float pulsewidth = 1.f;
+    float offset = 0.f;
+    int currentBanks = 1;
+    int loopCounter = 0;
+    bool outputSaw = false;
+    bool outputSin = false;
+    bool outputSqr = false;
+    bool outputTri = false;
+
+
 	LFO() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-		configParam(FREQ_PARAM, 0.f, 1.f, 0.f, "Frequency", "HZ", 0.f, 1024.f);
+		configParam(FREQ_PARAM, -8.f, 10.f, 1.f, "Frequency", "HZ", 2, 1);
 		configParam(PULSE_PARAM, 0.f, 1.f, 0.5f, "Pulsewidth", "%", 0.f, 100.f);
 		configParam(FM_PARAM, -1.f, 1.f, 0.f, "Frequency modulation", "%", 0.f, 100.f);
-		configParam(OFST_PARAM, 0.f, 1.f, 0.f, "Offset");
+		configSwitch(OFST_PARAM, 0.f, 1.f, 0.f, "Offset");
 		configParam(PULSEMOD_PARAM, -1.f, 1.f, 0.f, "Pulsewidth modulation", "%", 0.f, 100.f);
 		configInput(FM_INPUT, "Frequency modulation");
 		configInput(RESET_INPUT, "Reset");
@@ -44,7 +79,97 @@ struct LFO : Module {
 	}
 
 	void process(const ProcessArgs& args) override {
+        if (loopCounter-- == 0) {
+            loopCounter = 3;
+            processEvery4Samples(args);
+        }
+
+        generateOutput();
 	}
+
+    void processEvery4Samples(const ProcessArgs& args) {
+        outputSaw = outputs[SAW_OUTPUT].isConnected();
+        outputSin = outputs[SINE_OUTPUT].isConnected();
+        outputSqr = outputs[SQUARE_OUTPUT].isConnected();
+        outputTri = outputs[TRIANGLE_OUTPUT].isConnected();
+
+        float pulseWidthParam = params[PULSE_PARAM].getValue();
+        float pulseModParam = params[PULSEMOD_PARAM].getValue();
+
+        // Set offset
+        if (params[OFST_PARAM].getValue() > 0.f) {
+            offset = 5.f;
+        }
+        else {
+            offset = 0.f;
+        }
+
+        // Set pulsewidth
+        pulsewidth = pulseWidthParam + inputs[PULSEMOD_INPUT].getVoltage() / 10.f * pulseModParam;
+        pulsewidth = clamp(pulsewidth, 0.01f, 1.f - 0.01f);
+
+        // Note that assigning a float to a float_4 silently copies the float into all
+        // four floats in the float_4.
+        float_4 pitchParam = params[FREQ_PARAM].value;
+        float fmParam = params[FM_PARAM].getValue();
+        const int currentChannel = 1;
+
+        float_4 combinedPitch = pitchParam - float_4(4.f);
+
+        const float_4 q = float(std::log2(261.626));       // move up to C
+        combinedPitch += q;
+        combinedPitch += inputs[FM_INPUT].getPolyVoltageSimd<float_4>(currentChannel) * fmParam;
+
+
+        const float_4 freq = rack::dsp::approxExp2_taylor5<float_4>(combinedPitch);
+
+        const float_4 normalizedFreq = float_4(args.sampleTime) * freq;
+        phaseAdvance = normalizedFreq;
+
+    }
+    void generateOutput() {
+        // advance phase and wrap
+        phaseAccumulator += phaseAdvance;
+        phaseAccumulator -= simd::floor(phaseAccumulator);
+        if (inputs[RESET_INPUT].getVoltage() > 0.f) {
+            phaseAccumulator = 0;
+        }
+
+        if (outputSaw) {
+            // generate raw saw signal
+            float_4 rawSaw = phaseAccumulator + float_4(.5f);
+            rawSaw -= simd::trunc(rawSaw);
+            rawSaw = 2 * rawSaw - 1;
+
+            // transform from -1v / 1v to -5v / 5v and send to output
+            float_4 sawWave = float_4(5) * rawSaw + float_4(offset);
+            outputs[SAW_OUTPUT].setVoltageSimd(sawWave, 0);
+        }
+
+        if (outputSqr) {
+            // generate raw square signal
+            float_4 rawSqr = simd::ifelse(phaseAccumulator < pulsewidth, 1.f, -1.f);
+
+            // transform from -1v / 1v to -5v / 5v and send to output
+            float_4 sqrWave = float_4(5) * rawSqr + float_4(offset);
+            outputs[SQUARE_OUTPUT].setVoltageSimd(sqrWave, 0);
+        }
+
+        if (outputSin) {
+            const static float twoPi = 2 * 3.141592653589793238;
+            float_4 sinWave = float_4(5.f) * sinTwoPi(phaseAccumulator * twoPi) + float_4(offset);
+            outputs[SINE_OUTPUT].setVoltageSimd(sinWave, 0);
+        }
+
+        if (outputTri) {
+            // generate triangle wave based on saw wave
+            float_4 saw = (phaseAccumulator - 0.5) * 2;
+            float_4 triangle = (abs(saw) * 2) - 1 + float_4(offset);
+
+            // send to output
+            outputs[TRIANGLE_OUTPUT].setVoltageSimd(triangle * float_4(5), 0);
+        }
+    }
 };
 
 

@@ -13,3 +13,19 @@ extern Model* modelVCA;
 extern Model* modelSpringMod;
 extern Model* modelVCF;
 extern Model* modelLFO;
+extern Model* modelADSR;
+
+// Custom module components
+struct GL_SlidePot : app::SvgSlider {
+    GL_SlidePot() {
+        Vec margin = Vec(4, 4);
+        maxHandlePos = Vec(-1.5, -8).plus(margin);
+        minHandlePos = Vec(-1.5, 87).plus(margin);
+        setBackgroundSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/Components/GL_SlidePot.svg")));
+        background->wrap();
+        background->box.pos = margin;
+        box.size = background->box.size.plus(margin.mult(2));
+        setHandleSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/Components/GL_SlidePotHandle.svg")));
+        handle->wrap();
+    }
+};

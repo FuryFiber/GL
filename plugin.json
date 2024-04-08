@@ -42,6 +42,12 @@
       "name": "LFO",
       "description": "",
       "tags": []
+    },
+    {
+      "slug": "ADSR",
+      "name": "ADSR",
+      "description": "Envelope generator",
+      "tags": []
     }
   ]
 }

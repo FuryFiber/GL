@@ -171,8 +171,8 @@ struct VCAWidget : ModuleWidget {
 		addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH + 10, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
         // param inputs
-		addParam(createParamCentered<VCVSlider>(mm2px(Vec(7.567, 41.052)), module, VCA::AMP1_PARAM));
-		addParam(createParamCentered<VCVSlider>(mm2px(Vec(22.913, 41.052)), module, VCA::AMP2_PARAM));
+		addParam(createParamCentered<GL_SlidePot>(mm2px(Vec(7.567, 41.052)), module, VCA::AMP1_PARAM));
+		addParam(createParamCentered<GL_SlidePot>(mm2px(Vec(22.913, 41.052)), module, VCA::AMP2_PARAM));
 
         // cable inputs
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(7.567, 73.627)), module, VCA::MOD1_INPUT));

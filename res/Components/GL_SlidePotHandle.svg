@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="17"
+   height="24"
+   viewBox="0 0 17 24"
+   version="1.1"
+   id="svg55"
+   sodipodi:docname="GL_SlidePotHandle.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview57"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="30.416667"
+     inkscape:cx="8.1863014"
+     inkscape:cy="12"
+     inkscape:window-width="1904"
+     inkscape:window-height="1064"
+     inkscape:window-x="8"
+     inkscape:window-y="8"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg55" />
+  <defs
+     id="defs7">
+    <linearGradient
+       id="linear-gradient"
+       x1="8.5"
+       y1="0.71"
+       x2="8.5"
+       y2="23.28"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0"
+         stop-color="#231f20"
+         id="stop2" />
+      <stop
+         offset="1"
+         stop-color="#2e2e2e"
+         id="stop4" />
+    </linearGradient>
+  </defs>
+  <g
+     id="g1080">
+    <g
+       id="g15">
+      <rect
+         x="0.75"
+         y="0.75"
+         width="15.5"
+         height="22.5"
+         rx="2.25"
+         style="fill:url(#linear-gradient)"
+         id="rect9" />
+      <path
+         d="M 14,0 H 3 A 3,3 0 0 0 0,3 v 18 a 3,3 0 0 0 3,3 h 11 a 3,3 0 0 0 3,-3 V 3 A 3,3 0 0 0 14,0 Z m 2.63,21 A 2.63,2.63 0 0 1 14,23.63 H 3 A 2.63,2.63 0 0 1 0.37,21 V 3 A 2.62,2.62 0 0 1 3,0.38 H 14 A 2.62,2.62 0 0 1 16.63,3 Z"
+         style="fill:#161616"
+         id="path11" />
+      <path
+         d="M 14,0.38 H 3 A 2.62,2.62 0 0 0 0.37,3 V 21 A 2.63,2.63 0 0 0 3,23.63 H 14 A 2.63,2.63 0 0 0 16.63,21 V 3 A 2.62,2.62 0 0 0 14,0.38 Z M 16.25,21 A 2.25,2.25 0 0 1 14,23.25 H 3 A 2.25,2.25 0 0 1 0.75,21 V 3 A 2.25,2.25 0 0 1 3,0.75 H 14 A 2.25,2.25 0 0 1 16.25,3 Z"
+         style="fill:#333333"
+         id="path13" />
+    </g>
+    <rect
+       id="rect833"
+       x="1.79"
+       y="16.32"
+       width="13.42"
+       height="0.86000001"
+       rx="0.07"
+       style="fill:#1b1b1b" />
+    <rect
+       id="rect835"
+       x="1.79"
+       y="14.22"
+       width="13.42"
+       height="0.86000001"
+       rx="0.07"
+       style="fill:#1b1b1b" />
+    <rect
+       id="rect841"
+       x="1.79"
+       y="18.42"
+       width="13.42"
+       height="0.86000001"
+       rx="0.07"
+       style="fill:#1b1b1b" />
+    <rect
+       id="rect843"
+       x="1.79"
+       y="20.52"
+       width="13.42"
+       height="0.86000001"
+       rx="0.07"
+       style="fill:#1b1b1b" />
+    <rect
+       id="rect851"
+       x="1.79"
+       y="4.7199998"
+       width="13.42"
+       height="0.86000001"
+       rx="0.07"
+       style="fill:#1b1b1b" />
+    <rect
+       id="rect853"
+       x="1.79"
+       y="2.6199999"
+       width="13.42"
+       height="0.86000001"
+       rx="0.07"
+       style="fill:#1b1b1b" />
+    <rect
+       id="rect855"
+       x="1.79"
+       y="6.8200002"
+       width="13.42"
+       height="0.86000001"
+       rx="0.07"
+       style="fill:#1b1b1b" />
+    <rect
+       id="rect857"
+       x="1.79"
+       y="8.9200001"
+       width="13.42"
+       height="0.86000001"
+       rx="0.07"
+       style="fill:#1b1b1b" />
+    <rect
+       id="rect828"
+       x="4.5"
+       y="11.25"
+       width="8"
+       height="1.5"
+       rx="0.12"
+       style="fill:#ffcc00;fill-opacity:1" />
+    <path
+       id="rect828-2"
+       data-name="rect828"
+       d="M 12.38,12.84 H 4.62 c -0.06,0 -0.12,0 -0.12,-0.05 v -0.41 c 0,0 0.06,0 0.12,0 h 7.76 c 0.06,0 0.12,0 0.12,0 v 0.41 c 0,0 -0.06,0.05 -0.12,0.05 z"
+       style="opacity:0.3;fill:#ffffff" />
+    <g
+       id="g35">
+      <path
+         d="M 16.7,22.09 H 0.22 A 3,3 0 0 0 1.7,23.69 3,3 0 0 0 3,24 h 11 a 3,3 0 0 0 1.3,-0.31 2.92,2.92 0 0 0 1.48,-1.59 z"
+         style="opacity:0.4;fill:#231f20"
+         id="path31" />
+      <path
+         d="M 15.38,0.35 A 2.91,2.91 0 0 0 14,0 H 3 A 2.91,2.91 0 0 0 1.62,0.35 3,3 0 0 0 0.2,1.94 L 0.3,2 h 16.4 0.1 A 3,3 0 0 0 15.38,0.35 Z"
+         style="opacity:0.08;fill:#ffffff"
+         id="path33" />
+    </g>
+    <g
+       id="g49">
+      <g
+         id="g41">
+        <rect
+           id="rect851-2"
+           data-name="rect851"
+           x="1.79"
+           y="4.7199998"
+           width="13.42"
+           height="0.86000001"
+           rx="0.07"
+           style="fill:#181818" />
+        <rect
+           id="rect853-2"
+           data-name="rect853"
+           x="1.79"
+           y="2.6199999"
+           width="13.42"
+           height="0.86000001"
+           rx="0.07"
+           style="fill:#0f0f0f" />
+        <rect
+           id="rect855-2"
+           data-name="rect855"
+           x="1.79"
+           y="6.8200002"
+           width="13.42"
+           height="0.86000001"
+           rx="0.07"
+           style="fill:#202020" />
+        <rect
+           id="rect857-2"
+           data-name="rect857"
+           x="1.79"
+           y="8.9200001"
+           width="13.42"
+           height="0.86000001"
+           rx="0.07"
+           style="fill:#292929" />
+      </g>
+      <g
+         id="g47">
+        <rect
+           id="rect851-3"
+           data-name="rect851"
+           x="1.79"
+           y="18.42"
+           width="13.42"
+           height="0.86000001"
+           rx="0.07"
+           style="fill:#414141" />
+        <rect
+           id="rect853-3"
+           data-name="rect853"
+           x="1.79"
+           y="20.52"
+           width="13.42"
+           height="0.86000001"
+           rx="0.07"
+           style="fill:#484949" />
+        <rect
+           id="rect855-3"
+           data-name="rect855"
+           x="1.79"
+           y="16.32"
+           width="13.42"
+           height="0.86000001"
+           rx="0.07"
+           style="fill:#393a3a" />
+        <rect
+           id="rect857-3"
+           data-name="rect857"
+           x="1.79"
+           y="14.22"
+           width="13.42"
+           height="0.86000001"
+           rx="0.07"
+           style="fill:#323232" />
+      </g>
+    </g>
+  </g>
+</svg>

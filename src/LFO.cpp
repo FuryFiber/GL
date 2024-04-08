@@ -64,7 +64,7 @@ struct LFO : Module {
 
 	LFO() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-		configParam(FREQ_PARAM, -8.f, 10.f, 1.f, "Frequency", "HZ", 2, 1);
+		configParam(FREQ_PARAM, -8.f, 6.f, 1.f, "Frequency", "HZ", 2, 16);
 		configParam(PULSE_PARAM, 0.f, 1.f, 0.5f, "Pulsewidth", "%", 0.f, 100.f);
 		configParam(FM_PARAM, -1.f, 1.f, 0.f, "Frequency modulation", "%", 0.f, 100.f);
 		configSwitch(OFST_PARAM, 0.f, 1.f, 0.f, "Offset");

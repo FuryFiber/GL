@@ -14,6 +14,7 @@ extern Model* modelSpringMod;
 extern Model* modelVCF;
 extern Model* modelLFO;
 extern Model* modelADSR;
+extern Model* modelNOISE;
 
 // Custom module components
 struct GL_SlidePot : app::SvgSlider {

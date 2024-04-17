@@ -48,6 +48,12 @@
       "name": "ADSR",
       "description": "Envelope generator",
       "tags": []
+    },
+    {
+      "slug": "NOISE",
+      "name": "NOISE",
+      "description": "white and red noise generator",
+      "tags": []
     }
   ]
 }

@@ -164,10 +164,10 @@ struct LFO : Module {
         if (outputTri) {
             // generate triangle wave based on saw wave
             float_4 saw = (phaseAccumulator - 0.5) * 2;
-            float_4 triangle = (abs(saw) * 2) - 1 + float_4(offset);
+            float_4 triangle = (abs(saw) * 2) - 1;
 
             // send to output
-            outputs[TRIANGLE_OUTPUT].setVoltageSimd(triangle * float_4(5), 0);
+            outputs[TRIANGLE_OUTPUT].setVoltageSimd(triangle * float_4(5) + float_4(offset), 0);
         }
     }
 };

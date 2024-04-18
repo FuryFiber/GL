@@ -54,15 +54,16 @@ struct IIR {
 struct Biquad : IIR<2> {
 public:
     // Set IIR filter coefficients for it to act as a low pass filter with desired cutoff frequency
-    void setParametersLow(float cutoff, float quality){
+    void setParametersLow(float cutoff){
         float K = tan(M_PI * cutoff);
-        float norm = 1.f / (1.f + K / quality + K * K);
+        float norm = 1.f / (1.f + sqrt(2)*K + K * K);
         this->bCoef[0] = K * K * norm;
         this->bCoef[1] = 2.f * this->bCoef[0];
         this->bCoef[2] = this->bCoef[0];
         this->aCoef[0] = 2.f * (K * K - 1.f) * norm;
-        this->aCoef[1] = (1.f - K / quality + K * K) * norm;
+        this->aCoef[1] = (1.f - sqrt(2)*K + K * K) * norm;
     }
+    // Set IIR filter coefficients for it to act as a band pass filter with desired cutoff frequency
     void setParametersBand(float cutoff, float quality){
         float K = tan(M_PI * cutoff);
         float norm = 1.f / (1.f + K / quality + K * K);
@@ -72,25 +73,35 @@ public:
         this->aCoef[0] = 2.f * (K * K - 1.f) * norm;
         this->aCoef[1] = (1.f - K / quality + K * K) * norm;
     }
-    void setParametersHigh(float cutoff, float quality){
+    // Set IIR filter coefficients for it to act as a high pass filter with desired cutoff frequency
+    void setParametersHigh(float cutoff){
         float K = tan(M_PI * cutoff);
-        float norm = 1.f / (1.f + K / quality + K * K);
+        float norm = 1.f / (1.f + sqrt(2) * K + K * K);
         this->bCoef[0] = norm;
         this->bCoef[1] = -2.f * this->bCoef[0];
         this->bCoef[2] = this->bCoef[0];
         this->aCoef[0] = 2.f * (K * K - 1.f) * norm;
-        this->aCoef[1] = (1.f - K / quality + K * K) * norm;
+        this->aCoef[1] = (1.f - sqrt(2) * K + K * K) * norm;
     }
 };
 
 
 struct Cascade6PButterFilter{
     Biquad filters[3];
+    IIR<2> resonance;
 public:
+    void setResonance(float cutoff, float T){
+        float r = 0.5f;
+        resonance.bCoef[0] = (1-r*r)/2;
+        resonance.bCoef[1] = 0;
+        resonance.bCoef[2] = -resonance.bCoef[0];
+        resonance.aCoef[0] = -2 * r * cos(2 * M_PI * cutoff * T);
+        resonance.aCoef[1] = r*r;
+    }
     void setCutoffLow(float cutoff){
-        filters[0].setParametersLow(cutoff, .51763809);
-        filters[1].setParametersLow(cutoff, 0.70710678);
-        filters[2].setParametersLow(cutoff, 1.9318517);
+        filters[0].setParametersLow(cutoff);
+        filters[1].setParametersLow(cutoff);
+        filters[2].setParametersLow(cutoff);
     }
     void setCutoffBand(float cutoff){
         filters[0].setParametersBand(cutoff, .51763809);
@@ -98,14 +109,15 @@ public:
         filters[2].setParametersBand(cutoff, 1.9318517);
     }
     void setCutoffHigh(float cutoff){
-        filters[0].setParametersHigh(cutoff, .51763809);
-        filters[1].setParametersHigh(cutoff, 0.70710678);
-        filters[2].setParametersHigh(cutoff, 1.9318517);
+        filters[0].setParametersHigh(cutoff);
+        filters[1].setParametersHigh(cutoff);
+        filters[2].setParametersHigh(cutoff);
     }
     float process(float in){
         float out = filters[0].process(in);
         out = filters[1].process(out);
         out = filters[2].process(out);
+        //out += resonance.process(in);
 
         return out;
     }
@@ -122,9 +134,10 @@ public:
         buffer[index] = in;
 
         for (int i = 0; i<=ORDER; i++){
-            out += coefs[i] * buffer[(index+order-i) % (ORDER + 1)];
+            out += coefs[i] * buffer[(index+ORDER-i) % (ORDER + 1)];
         }
-        index = (index + 1) % (ORDER + 1)
+        index = (index + 1) % (ORDER + 1);
+        return out;
     }
 };
 

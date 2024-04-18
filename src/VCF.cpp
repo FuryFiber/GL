@@ -34,7 +34,7 @@ struct VCF : Module {
 
 	VCF() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-        configParam(CUT_PARAM, 0.001f, 0.2f, 0.03f, "Cutoff frequency");
+        configParam(CUT_PARAM, 0.001f, 0.3f, 0.03f, "Cutoff frequency");
 		configParam(RES_PARAM, 0.f, 1.f, 0.f, "Resonance");
 		configParam(DRIVE_PARAM, 0.f, 1.f, 0.f, "Drive");
 		configParam(RESMOD_PARAM, -1.f, 1.f, 0.f, "Resonance modulation", "%", 0.f, 100.f);
@@ -60,6 +60,7 @@ struct VCF : Module {
         float cutoff_mod_param = params[CUTMOD_PARAM].getValue();
         float cutoff_mod_cv = inputs[CUTMOD_INPUT].getVoltage();
         float cutoff = cutoff_param + cutoff_mod_param*cutoff_mod_cv;
+        filter.setResonance(cutoff, args.sampleTime);
         if (outputs[LP_OUTPUT].isConnected()){
             filter.setCutoffLow(cutoff);
             float out = filter.process(input);

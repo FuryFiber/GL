@@ -34,26 +34,87 @@ struct ADSR : Module {
 		LIGHTS_LEN
 	};
 
+    bool decaying = false;
+    float env = 0.0f;
+    dsp::SchmittTrigger trigger;
+
 	ADSR() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-		configParam(ATCK_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(DEC_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(SUS_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(REL_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(ATCK_MOD_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(DEC_MOD_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(SUS_MOD_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(REL_MOD_PARAM, 0.f, 1.f, 0.f, "");
-		configInput(ATCK_INPUT, "");
-		configInput(DEC_INPUT, "");
-		configInput(SUS_INPUT, "");
-		configInput(REL_INPUT, "");
-		configInput(GATE_INPUT, "");
-		configInput(RETR_INPUT, "");
-		configOutput(OUT_OUTPUT, "");
+		configParam(ATCK_PARAM, 0.f, 1.f, 0.5f, "Attack");
+		configParam(DEC_PARAM, 0.f, 1.f, 0.5f, "Decay");
+		configParam(SUS_PARAM, 0.f, 1.f, 0.5f, "Sustain");
+		configParam(REL_PARAM, 0.f, 1.f, 0.5f, "Release");
+		configParam(ATCK_MOD_PARAM, -1.f, 1.f, 0.f, "Attack modulation", "%", 0.f, 100.f);
+		configParam(DEC_MOD_PARAM, -1.f, 1.f, 0.f, "Decay modulation", "%", 0.f, 100.f);
+		configParam(SUS_MOD_PARAM, -1.f, 1.f, 0.f, "Sustain modulation", "%", 0.f, 100.f);
+		configParam(REL_MOD_PARAM, -1.f, 1.f, 0.f, "Release modulation", "%", 0.f, 100.f);
+		configInput(ATCK_INPUT, "Attack modulation");
+		configInput(DEC_INPUT, "Decay modulation");
+		configInput(SUS_INPUT, "Sustain modulation");
+		configInput(REL_INPUT, "Release modulation");
+		configInput(GATE_INPUT, "Gate");
+		configInput(RETR_INPUT, "Retrigger");
+		configOutput(OUT_OUTPUT, "Envelope");
 	}
 
 	void process(const ProcessArgs& args) override {
+        float attack = clamp(params[ATCK_PARAM].getValue() + inputs[ATCK_INPUT].getVoltage()*params[ATCK_MOD_PARAM].getValue() / 10.0f, 0.0f, 1.0f);
+        float decay = clamp(params[DEC_PARAM].getValue() + inputs[DEC_INPUT].getVoltage()*params[DEC_MOD_PARAM].getValue() / 10.0f, 0.0f, 1.0f);
+        float sustain = clamp(params[SUS_PARAM].getValue() + inputs[SUS_INPUT].getVoltage()*params[SUS_MOD_PARAM].getValue() / 10.0f, 0.0f, 1.0f);
+        float release = clamp(params[REL_PARAM].getValue() + inputs[REL_INPUT].getVoltage()*params[REL_MOD_PARAM].getValue() / 10.0f, 0.0f, 1.0f);
+        // Gate and trigger
+        bool gated = inputs[GATE_INPUT].getVoltage() >= 1.0f;
+        if (trigger.process(inputs[RETR_INPUT].getVoltage()))
+            decaying = false;
+
+        const float base = 20000.0f;
+        const float maxTime = 10.0f;
+        if (gated) {
+            if (decaying) {
+                // Decay
+                if (decay < 1e-4) {
+                    env = sustain;
+                }
+                else {
+                    env += powf(base, 1 - decay) / maxTime * (sustain - env) / args.sampleRate;
+                }
+            }
+            else {
+                // Attack
+                // Skip ahead if attack is all the way down (infinitely fast)
+                if (attack < 1e-4) {
+                    env = 1.0f;
+                }
+                else {
+                    env += powf(base, 1 - attack) / maxTime * (1.01 - env) / args.sampleRate;
+                }
+                if (env >= 1.0f) {
+                    env = 1.0f;
+                    decaying = true;
+                }
+            }
+        }
+        else {
+            // Release
+            if (release < 1e-4) {
+                env = 0.0f;
+            }
+            else {
+                env += powf(base, 1 - release) / maxTime * (0.0 - env) / args.sampleRate;
+            }
+            decaying = false;
+        }
+
+        bool sustaining = isNear(env, sustain, 1e-3);
+        bool resting = isNear(env, 0.0, 1e-3);
+
+        outputs[OUT_OUTPUT].setVoltage(10.0f * env);
+
+        // Lights
+        lights[ATCK_LIGHT].value = (gated && !decaying) ? 1.0f : 0.0f;
+        lights[DEC_LIGHT].value = (gated && decaying && !sustaining) ? 1.0f : 0.0f;
+        lights[SUS_LIGHT].value = (gated && decaying && sustaining) ? 1.0f : 0.0f;
+        lights[REL_LIGHT].value = (!gated && !resting) ? 1.0f : 0.0f;
 	}
 };
 

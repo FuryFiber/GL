@@ -15,6 +15,9 @@ extern Model* modelVCF;
 extern Model* modelLFO;
 extern Model* modelADSR;
 extern Model* modelNOISE;
+extern Model* modelHATS;
+extern Model* modelKICKS;
+extern Model* modelSNARES;
 
 // Custom module components
 struct GL_SlidePot : app::SvgSlider {

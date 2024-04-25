@@ -54,6 +54,24 @@
       "name": "NOISE",
       "description": "white and red noise generator",
       "tags": []
+    },
+    {
+      "slug": "HATS",
+      "name": "HATS",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "KICKS",
+      "name": "KICKS",
+      "description": "",
+      "tags": []
+    },
+    {
+      "slug": "SNARES",
+      "name": "SNARES",
+      "description": "",
+      "tags": []
     }
   ]
 }

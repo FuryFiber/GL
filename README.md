@@ -1,7 +1,9 @@
 # Golden lion VCV Rack collection
 A collection of modules for VCV rack made for my "Individual Project" course.
 The main goal for this project was to learn about DSP by implementing my own modules for vcv rack.
-
+Please keep in mind that this project if far from finished. Many modules are implemented to the minimal requirements. 
+The VCO module currently still has problems with aliasing. A lot of code is still in its first form and needs 
+refactoring/updating.
 # In this collection
 ![](/docs/ALL.png)
 ## VCO

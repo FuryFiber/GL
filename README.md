@@ -60,7 +60,7 @@ A module to sinthesize snare drums.
 Currently not implemented.
 
 
-# Building/installing
+# Installing
 In order to install the modules the VCV Rack SDK is needed.
 Installing:
 ```fish

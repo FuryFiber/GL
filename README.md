@@ -4,6 +4,7 @@ The main goal for this project was to learn about DSP by implementing my own mod
 Please keep in mind that this project if far from finished. Many modules are implemented to the minimal requirements. 
 The VCO module currently still has problems with aliasing. A lot of code is still in its first form and needs 
 refactoring/updating.
+
 # In this collection
 ![](/docs/ALL.png)
 ## VCO
@@ -57,3 +58,12 @@ Currently not implemented.\
 ## SNARES
 A module to sinthesize snare drums.
 Currently not implemented.\
+
+
+# Building/installing
+In order to install the modules the VCV Rack SDK is needed.
+Installing:
+```fish
+export RACK_DIR=<RACK_SDK_DIR>
+make install
+```

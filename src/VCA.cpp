@@ -2,13 +2,7 @@
 
 
 struct VCA : Module {
-    int polyphony1 = 1;
-    int polyphony2 = 1;
-    float amp1 = 0.f;
-    float amp2 = 0.f;
-    bool mod1Connected = false;
-    bool mod2Connected = false;
-    int steps = 0;
+
 	enum ParamId {
 		AMP1_PARAM,
 		AMP2_PARAM,
@@ -49,6 +43,14 @@ struct VCA : Module {
 		L2_10_LIGHT,
 		LIGHTS_LEN
 	};
+
+    int polyphony1 = 1;
+    int polyphony2 = 1;
+    float amp1 = 0.f;
+    float amp2 = 0.f;
+    bool mod1Connected = false;
+    bool mod2Connected = false;
+    int steps = 0;
 
 	VCA() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);

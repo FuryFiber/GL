@@ -1,5 +1,6 @@
 #include "plugin.hpp"
 
+const int maxPolyphony = 16;
 
 struct ADSR : Module {
 	enum ParamId {
@@ -34,9 +35,9 @@ struct ADSR : Module {
 		LIGHTS_LEN
 	};
 
-    bool decaying = false;
-    float env = 0.0f;
-    dsp::SchmittTrigger trigger;
+    bool decaying[maxPolyphony];
+    float env[maxPolyphony];
+    dsp::SchmittTrigger trigger[maxPolyphony];
 
 	ADSR() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -63,58 +64,58 @@ struct ADSR : Module {
         float sustain = clamp(params[SUS_PARAM].getValue() + inputs[SUS_INPUT].getVoltage()*params[SUS_MOD_PARAM].getValue() / 10.0f, 0.0f, 1.0f);
         float release = clamp(params[REL_PARAM].getValue() + inputs[REL_INPUT].getVoltage()*params[REL_MOD_PARAM].getValue() / 10.0f, 0.0f, 1.0f);
         // Gate and trigger
-        bool gated = inputs[GATE_INPUT].getVoltage() >= 1.0f;
-        if (trigger.process(inputs[RETR_INPUT].getVoltage()))
-            decaying = false;
+        int channels = inputs[GATE_INPUT].getChannels();
+        outputs[OUT_OUTPUT].setChannels(channels);
 
-        const float base = 20000.0f;
-        const float maxTime = 10.0f;
-        if (gated) {
-            if (decaying) {
-                // Decay
-                if (decay < 1e-4) {
-                    env = sustain;
+        for (int i = 0; i<channels; i++) {
+            bool gated = inputs[GATE_INPUT].getVoltage(i) >= 1.0f;
+            if (trigger[i].process(inputs[RETR_INPUT].getVoltage(i)))
+                decaying[i] = false;
+
+            const float base = 20000.0f;
+            const float maxTime = 10.0f;
+            if (gated) {
+                if (decaying[i]) {
+                    // Decay
+                    if (decay < 1e-4) {
+                        env[i] = sustain;
+                    } else {
+                        env[i] += powf(base, 1 - decay) / maxTime * (sustain - env[i]) / args.sampleRate;
+                    }
+                } else {
+                    // Attack
+                    // Skip ahead if attack is all the way down (infinitely fast)
+                    if (attack < 1e-4) {
+                        env[i] = 1.0f;
+                    } else {
+                        env[i] += powf(base, 1 - attack) / maxTime * (1.01 - env[i]) / args.sampleRate;
+                    }
+                    if (env[i] >= 1.0f) {
+                        env[i] = 1.0f;
+                        decaying[i] = true;
+                    }
                 }
-                else {
-                    env += powf(base, 1 - decay) / maxTime * (sustain - env) / args.sampleRate;
+            } else {
+                // Release
+                if (release < 1e-4) {
+                    env[i] = 0.0f;
+                } else {
+                    env[i] += powf(base, 1 - release) / maxTime * (0.0 - env[i]) / args.sampleRate;
                 }
+                decaying[i] = false;
             }
-            else {
-                // Attack
-                // Skip ahead if attack is all the way down (infinitely fast)
-                if (attack < 1e-4) {
-                    env = 1.0f;
-                }
-                else {
-                    env += powf(base, 1 - attack) / maxTime * (1.01 - env) / args.sampleRate;
-                }
-                if (env >= 1.0f) {
-                    env = 1.0f;
-                    decaying = true;
-                }
-            }
+
+            bool sustaining = isNear(env[i], sustain, 1e-3);
+            bool resting = isNear(env[i], 0.0, 1e-3);
+
+            outputs[OUT_OUTPUT].setVoltage(10.0f * env[i], i);
+
+            // Lights
+            lights[ATCK_LIGHT].value = (gated && !decaying) ? 1.0f : 0.0f;
+            lights[DEC_LIGHT].value = (gated && decaying && !sustaining) ? 1.0f : 0.0f;
+            lights[SUS_LIGHT].value = (gated && decaying && sustaining) ? 1.0f : 0.0f;
+            lights[REL_LIGHT].value = (!gated && !resting) ? 1.0f : 0.0f;
         }
-        else {
-            // Release
-            if (release < 1e-4) {
-                env = 0.0f;
-            }
-            else {
-                env += powf(base, 1 - release) / maxTime * (0.0 - env) / args.sampleRate;
-            }
-            decaying = false;
-        }
-
-        bool sustaining = isNear(env, sustain, 1e-3);
-        bool resting = isNear(env, 0.0, 1e-3);
-
-        outputs[OUT_OUTPUT].setVoltage(10.0f * env);
-
-        // Lights
-        lights[ATCK_LIGHT].value = (gated && !decaying) ? 1.0f : 0.0f;
-        lights[DEC_LIGHT].value = (gated && decaying && !sustaining) ? 1.0f : 0.0f;
-        lights[SUS_LIGHT].value = (gated && decaying && sustaining) ? 1.0f : 0.0f;
-        lights[REL_LIGHT].value = (!gated && !resting) ? 1.0f : 0.0f;
 	}
 };
 

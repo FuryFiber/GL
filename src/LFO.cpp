@@ -4,6 +4,9 @@
 
 using float_4 = simd::float_4;
 
+/*
+ * Simd sine approximation
+ */
 inline float_4 sinTwoPi(float_4 _x) {
     const static float twoPi = 2 * 3.141592653589793238;
     const static float pi =  3.141592653589793238;
@@ -23,6 +26,10 @@ inline float_4 sinTwoPi(float_4 _x) {
     return ifelse(xneg, -ret, ret);
 }
 
+/*
+ * Low frequency oscillator module implementation.
+ * Provides, sine, square, saw and triangle waves from 0-1024Hz
+ */
 struct LFO : Module {
 	enum ParamId {
 		FREQ_PARAM,
@@ -78,6 +85,9 @@ struct LFO : Module {
 		configOutput(SQUARE_OUTPUT, "Square output");
 	}
 
+    /*
+     * Process a single timestep
+     */
 	void process(const ProcessArgs& args) override {
         if (loopCounter-- == 0) {
             loopCounter = 3;
@@ -87,6 +97,10 @@ struct LFO : Module {
         generateOutput();
 	}
 
+    /*
+     * Process called only every 4 timesteps for performance optimization reasons.
+     * Mostly consists of updating parameters and calculating output frequency
+     */
     void processEvery4Samples(const ProcessArgs& args) {
         outputSaw = outputs[SAW_OUTPUT].isConnected();
         outputSin = outputs[SINE_OUTPUT].isConnected();
@@ -127,6 +141,10 @@ struct LFO : Module {
         phaseAdvance = normalizedFreq;
 
     }
+
+    /*
+     * Actually generate output signal
+     */
     void generateOutput() {
         // advance phase and wrap
         phaseAccumulator += phaseAdvance;
@@ -178,22 +196,25 @@ struct LFOWidget : ModuleWidget {
 		setModule(module);
 		setPanel(createPanel(asset::plugin(pluginInstance, "res/GL-LFO.svg")));
 
-        // add screws
+        // screws
         addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH- 10, 0)));
         addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH + 10, 0)));
         addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH - 10, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH + 10, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
+        // params
 		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(12.326, 23.092)), module, LFO::FREQ_PARAM));
 		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(48.578, 23.092)), module, LFO::PULSE_PARAM));
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(12.326, 71.511)), module, LFO::FM_PARAM));
 		addParam(createParamCentered<CKSS>(mm2px(Vec(30.48, 71.511)), module, LFO::OFST_PARAM));
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(48.578, 71.511)), module, LFO::PULSEMOD_PARAM));
 
+        // inputs
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(12.326, 89.767)), module, LFO::FM_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30.48, 89.767)), module, LFO::RESET_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(48.578, 89.767)), module, LFO::PULSEMOD_INPUT));
 
+        // outputs
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(12.326, 108.95)), module, LFO::SINE_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(24.405, 108.95)), module, LFO::TRIANGLE_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(36.484, 108.95)), module, LFO::SAW_OUTPUT));

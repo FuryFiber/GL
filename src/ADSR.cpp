@@ -2,6 +2,11 @@
 
 const int maxPolyphony = 16;
 
+
+/*
+ * ADSR envelope module implementation
+ * Provides polyphonic envelope generation.
+ */
 struct ADSR : Module {
 	enum ParamId {
 		ATCK_PARAM,
@@ -58,22 +63,35 @@ struct ADSR : Module {
 		configOutput(OUT_OUTPUT, "Envelope");
 	}
 
+    /*
+     * Process a single timestep
+     */
 	void process(const ProcessArgs& args) override {
+
+        // Calculate parameter values
         float attack = clamp(params[ATCK_PARAM].getValue() + inputs[ATCK_INPUT].getVoltage()*params[ATCK_MOD_PARAM].getValue() / 10.0f, 0.0f, 1.0f);
         float decay = clamp(params[DEC_PARAM].getValue() + inputs[DEC_INPUT].getVoltage()*params[DEC_MOD_PARAM].getValue() / 10.0f, 0.0f, 1.0f);
         float sustain = clamp(params[SUS_PARAM].getValue() + inputs[SUS_INPUT].getVoltage()*params[SUS_MOD_PARAM].getValue() / 10.0f, 0.0f, 1.0f);
         float release = clamp(params[REL_PARAM].getValue() + inputs[REL_INPUT].getVoltage()*params[REL_MOD_PARAM].getValue() / 10.0f, 0.0f, 1.0f);
-        // Gate and trigger
+
+        // Get gate and trigger
         int channels = inputs[GATE_INPUT].getChannels();
         outputs[OUT_OUTPUT].setChannels(channels);
 
+        // For each used polyphony channel
         for (int i = 0; i<channels; i++) {
+
+            // Check if gate is open
             bool gated = inputs[GATE_INPUT].getVoltage(i) >= 1.0f;
+
+            // Check if triggered
             if (trigger[i].process(inputs[RETR_INPUT].getVoltage(i)))
                 decaying[i] = false;
 
             const float base = 20000.0f;
             const float maxTime = 10.0f;
+
+            // if gate is open, generate envelope signal
             if (gated) {
                 if (decaying[i]) {
                     // Decay
@@ -121,17 +139,20 @@ struct ADSR : Module {
 
 
 struct ADSRWidget : ModuleWidget {
+    /*
+     * Create module widget
+     */
 	ADSRWidget(ADSR* module) {
 		setModule(module);
 		setPanel(createPanel(asset::plugin(pluginInstance, "res/GL-ADSR.svg")));
 
-        // add screws
+        // screws
         addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH- 10, 0)));
         addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH + 10, 0)));
         addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH - 10, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH + 10, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        // param inputs
+        // params
         addParam(createParamCentered<GL_SlidePot>(mm2px(Vec(6.834, 40.742)), module, ADSR::ATCK_PARAM));
 		addParam(createParamCentered<GL_SlidePot>(mm2px(Vec(17.506, 40.742)), module, ADSR::DEC_PARAM));
 		addParam(createParamCentered<GL_SlidePot>(mm2px(Vec(28.179, 40.742)), module, ADSR::SUS_PARAM));
@@ -141,7 +162,7 @@ struct ADSRWidget : ModuleWidget {
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(28.179, 71.511)), module, ADSR::SUS_MOD_PARAM));
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(38.852, 71.511)), module, ADSR::REL_MOD_PARAM));
 
-        // Inputs
+        // inputs
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(6.851, 89.767)), module, ADSR::ATCK_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(17.524, 89.767)), module, ADSR::DEC_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(28.196, 89.767)), module, ADSR::SUS_INPUT));
@@ -149,10 +170,10 @@ struct ADSRWidget : ModuleWidget {
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(6.851, 108.95)), module, ADSR::GATE_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(22.86, 108.95)), module, ADSR::RETR_INPUT));
 
-        // Outputs
+        // outputs
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(38.869, 108.95)), module, ADSR::OUT_OUTPUT));
 
-        // Lights
+        // lights
 		addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(6.834, 13.085)), module, ADSR::ATCK_LIGHT));
 		addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(17.506, 13.085)), module, ADSR::DEC_LIGHT));
 		addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(28.179, 13.085)), module, ADSR::SUS_LIGHT));

@@ -2,7 +2,7 @@
 
 
 /*
- * IIR filter implementation with arbitrary order
+ * IIR convolution function implementation with arbitrary order
  */
 template <int ORDER>
 struct IIR {
@@ -11,6 +11,9 @@ struct IIR {
     float xCoef[ORDER];         // input history
     float yCoef[ORDER];         // output history
 
+    /*
+     * Constrcutor resets all arrays to contain 0's
+     */
     IIR() {
         for (int i = 1; i < ORDER+1; i++) {
             xCoef[i - 1] = 0.f;
@@ -20,6 +23,9 @@ struct IIR {
         }
     }
 
+    /*
+     * Process a single sample
+     */
     float process(float in) {
         float out = 0.f;
         // Add x state
@@ -53,7 +59,9 @@ struct IIR {
  */
 struct Biquad : IIR<2> {
 public:
-    // Set IIR filter coefficients for it to act as a low pass filter with desired cutoff frequency
+    /*
+     * Set IIR filter coefficients for it to act as a low pass filter with desired cutoff frequency
+     */
     void setParametersLow(float cutoff){
         float K = tan(M_PI * cutoff);
         float norm = 1.f / (1.f + sqrt(2)*K + K * K);
@@ -63,7 +71,9 @@ public:
         this->aCoef[0] = 2.f * (K * K - 1.f) * norm;
         this->aCoef[1] = (1.f - sqrt(2)*K + K * K) * norm;
     }
-    // Set IIR filter coefficients for it to act as a band pass filter with desired cutoff frequency
+    /*
+     * Set IIR filter coefficients for it to act as a band pass filter with desired cutoff frequency
+     */
     void setParametersBand(float cutoff, float quality){
         float K = tan(M_PI * cutoff);
         float norm = 1.f / (1.f + K / quality + K * K);
@@ -73,7 +83,9 @@ public:
         this->aCoef[0] = 2.f * (K * K - 1.f) * norm;
         this->aCoef[1] = (1.f - K / quality + K * K) * norm;
     }
-    // Set IIR filter coefficients for it to act as a high pass filter with desired cutoff frequency
+    /*
+     * Set IIR filter coefficients for it to act as a high pass filter with desired cutoff frequency
+     */
     void setParametersHigh(float cutoff){
         float K = tan(M_PI * cutoff);
         float norm = 1.f / (1.f + sqrt(2) * K + K * K);
@@ -98,16 +110,27 @@ public:
         resonance.aCoef[0] = -2 * r * cos(2 * M_PI * cutoff * T);
         resonance.aCoef[1] = r*r;
     }
+
+    /*
+     * Set all filter coefficients to lowpass impulse response
+     */
     void setCutoffLow(float cutoff){
         filters[0].setParametersLow(cutoff);
         filters[1].setParametersLow(cutoff);
         filters[2].setParametersLow(cutoff);
     }
+
+    /*
+     * Set all filter coefficients to bandpass impulse response
+     */
     void setCutoffBand(float cutoff){
         filters[0].setParametersBand(cutoff, .51763809);
         filters[1].setParametersBand(cutoff, 0.70710678);
         filters[2].setParametersBand(cutoff, 1.9318517);
     }
+    /*
+     * Set all filter coefficients to highpass impulse response
+     */
     void setCutoffHigh(float cutoff){
         filters[0].setParametersHigh(cutoff);
         filters[1].setParametersHigh(cutoff);
@@ -123,6 +146,9 @@ public:
     }
 };
 
+/*
+ * FIR convolution function implementation with arbitrary order
+ */
 template <int ORDER>
 struct FIR {
     float coefs[ORDER] = {};
@@ -130,20 +156,33 @@ struct FIR {
     int index = 0;
 public:
 
+    /*
+     * Constructor initializes buffer array to only 0's
+     */
     FIR() {
         for (int i =0; i<ORDER; i++){
             buffer[i] = 0;
         }
     }
 
+    /*
+     * Process a single sample
+     */
     float process(float in) {
         float out = 0;
+
+        // Place sample in buffer
         buffer[index] = in;
+
+        // Update buffer index
         index++;
         if (index == ORDER) {
             index = 0;
         }
+
         int sum_index = 0;
+
+        // For every item in the buffer perform convolution sum
         for (int i = 0; i<ORDER; i++){
             if (sum_index>0){
                 sum_index--;
@@ -158,8 +197,14 @@ public:
     }
 };
 
+/*
+ * Basic FIR filter implementation using window-sinc method and the hamming window function
+ */
 template <int ORDER>
 struct VariableCutoffFIRFilter : FIR<ORDER> {
+    /*
+     * Set lowpass coefficients
+     */
     void setLowPass(float cutoffFreq, float sampleRate) {
         float wc = 2.f * M_PI*cutoffFreq / sampleRate;
         float M = ORDER/2;
@@ -175,6 +220,9 @@ struct VariableCutoffFIRFilter : FIR<ORDER> {
         }
     }
 
+    /*
+     * Set highpass coefficients
+     */
     void setHighpass(float cutoffFreq, float sampleRate) {
         float wc = 2.f * M_PI*cutoffFreq / sampleRate;
         float M = ORDER/2;

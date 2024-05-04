@@ -4,56 +4,56 @@
   "version": "2.0.0",
   "license": "proprietary",
   "brand": "GL",
-  "author": "",
-  "authorEmail": "",
+  "author": "Flor Mertens",
+  "authorEmail": "flor.mertens@proximus.be",
   "authorUrl": "",
   "pluginUrl": "",
   "manualUrl": "",
-  "sourceUrl": "",
+  "sourceUrl": "https://github.com/FuryFiber/GL",
   "donateUrl": "",
   "changelogUrl": "",
   "modules": [
     {
       "slug": "VCO",
       "name": "VCO",
-      "description": "",
-      "tags": []
+      "description": "Voltage controlled oscillator",
+      "tags": ["Oscillator", "Polyphonic", "Digital"]
     },
     {
       "slug": "VCA",
       "name": "VCA",
-      "description": "",
-      "tags": []
+      "description": "Basic dual voltage controlled amplifier",
+      "tags": ["Voltage-controlled amplifier", "Digital", "Dual"]
     },
     {
       "slug": "SpringMod",
       "name": "SpringMod",
       "description": "Modulation source based on damped spring oscillations",
-      "tags": []
+      "tags": ["Function generator", "Physical modeling"]
     },
     {
       "slug": "VCF",
       "name": "VCF",
-      "description": "Voltage controlled filter",
-      "tags": []
+      "description": "Voltage controlled filter with lowpass, bandpass and highpass capabilities. Both IIR and FIR filter methods can be used.",
+      "tags": ["Filter", "Equalizer"]
     },
     {
       "slug": "LFO",
       "name": "LFO",
-      "description": "",
-      "tags": []
+      "description": "Basic low frequency oscillator",
+      "tags": ["Low-frequency oscillator"]
     },
     {
       "slug": "ADSR",
       "name": "ADSR",
       "description": "Envelope generator",
-      "tags": []
+      "tags": ["Envelope generator"]
     },
     {
       "slug": "NOISE",
       "name": "NOISE",
       "description": "white and red noise generator",
-      "tags": []
+      "tags": ["Noise"]
     },
     {
       "slug": "HATS",

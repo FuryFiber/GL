@@ -30,11 +30,18 @@ struct VCF : Module {
 		LIGHTS_LEN
 	};
 
-    Cascade6PButterFilter filter;
+    int mode;
+    Cascade6PButterFilter IIR_lowpass_filter;
+    Cascade6PButterFilter IIR_bandpass_filter;
+    Cascade6PButterFilter IIR_highpass_filter;
+    VariableCutoffFIRFilter<64> FIR_lowpass_filter;
+    VariableCutoffFIRFilter<64> FIR_bandpass_filter;
+    VariableCutoffFIRFilter<64> FIR_highpass_filter;
+
 
 	VCF() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-        configParam(CUT_PARAM, 0.001f, 0.3f, 0.03f, "Cutoff frequency");
+        configParam(CUT_PARAM, 0.001f, 20000.f, 1000.f, "Cutoff frequency", "Hz");
 		configParam(RES_PARAM, 0.f, 1.f, 0.f, "Resonance");
 		configParam(DRIVE_PARAM, 0.f, 1.f, 0.f, "Drive");
 		configParam(RESMOD_PARAM, -1.f, 1.f, 0.f, "Resonance modulation", "%", 0.f, 100.f);
@@ -54,27 +61,50 @@ struct VCF : Module {
         if (!outputs[LP_OUTPUT].isConnected() && !outputs[BP_OUTPUT].isConnected() && !outputs[HP_OUTPUT].isConnected()){
             return;
         }
+        if (!inputs[IN_INPUT].isConnected()){
+            return;
+        }
 
         float input = inputs[IN_INPUT].getVoltage();
         float cutoff_param = params[CUT_PARAM].getValue();
         float cutoff_mod_param = params[CUTMOD_PARAM].getValue();
         float cutoff_mod_cv = inputs[CUTMOD_INPUT].getVoltage();
         float cutoff = cutoff_param + cutoff_mod_param*cutoff_mod_cv;
-        filter.setResonance(cutoff, args.sampleTime);
-        if (outputs[LP_OUTPUT].isConnected()){
-            filter.setCutoffLow(cutoff);
-            float out = filter.process(input);
-            outputs[LP_OUTPUT].setVoltage(out);
+        if (cutoff > 20000){
+            cutoff = 20000;
         }
-        if (outputs[BP_OUTPUT].isConnected()){
-            filter.setCutoffBand(cutoff);
-            float out = filter.process(input);
-            outputs[BP_OUTPUT].setVoltage(out);
+        if (cutoff < 0) {
+            cutoff = 0;
         }
-        if (outputs[HP_OUTPUT].isConnected()){
-            filter.setCutoffHigh(cutoff);
-            float out = filter.process(input);
-            outputs[HP_OUTPUT].setVoltage(out);
+        if (mode == 0){
+            float normalized_cutoff = cutoff/40000.f;
+            if (outputs[LP_OUTPUT].isConnected()){
+                IIR_lowpass_filter.setCutoffLow(normalized_cutoff);
+                float out = IIR_lowpass_filter.process(input);
+                outputs[LP_OUTPUT].setVoltage(out);
+            }
+            if (outputs[BP_OUTPUT].isConnected()){
+                IIR_bandpass_filter.setCutoffBand(normalized_cutoff);
+                float out = IIR_bandpass_filter.process(input);
+                outputs[BP_OUTPUT].setVoltage(out);
+            }
+            if (outputs[HP_OUTPUT].isConnected()){
+                IIR_highpass_filter.setCutoffHigh(normalized_cutoff);
+                float out = IIR_highpass_filter.process(input);
+                outputs[HP_OUTPUT].setVoltage(out);
+            }
+        }
+        if (mode == 1) {
+            if (outputs[LP_OUTPUT].isConnected()){
+                FIR_lowpass_filter.setLowPass(cutoff, args.sampleRate);
+                float out = FIR_lowpass_filter.process(input);
+                outputs[LP_OUTPUT].setVoltage(out);
+            }
+            if (outputs[HP_OUTPUT].isConnected()){
+                FIR_highpass_filter.setHighpass(cutoff, args.sampleRate);
+                float out = FIR_highpass_filter.process(input);
+                outputs[LP_OUTPUT].setVoltage(out);
+            }
         }
 	}
 };
@@ -107,6 +137,17 @@ struct VCFWidget : ModuleWidget {
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(37.488, 108.95)), module, VCF::BP_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(49.582, 108.954)), module, VCF::HP_OUTPUT));
 	}
+
+    void appendContextMenu(Menu* menu) override {
+        VCF* module = getModule<VCF>();
+
+        menu->addChild(new MenuSeparator);
+
+        menu->addChild(createMenuLabel("Filter settings"));
+
+        menu->addChild(createIndexPtrSubmenuItem("Mode", {"IIR", "FIR"}, &module->mode));
+
+    }
 };
 
 

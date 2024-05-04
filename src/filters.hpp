@@ -125,48 +125,68 @@ public:
 
 template <int ORDER>
 struct FIR {
-    float coefs[ORDER+1] = {};
-    float buffer[ORDER+1] = {};
+    float coefs[ORDER] = {};
+    float buffer[ORDER] = {};
     int index = 0;
 public:
+
+    FIR() {
+        for (int i =0; i<ORDER; i++){
+            buffer[i] = 0;
+        }
+    }
+
     float process(float in) {
         float out = 0;
         buffer[index] = in;
-
-        for (int i = 0; i<=ORDER; i++){
-            out += coefs[i] * buffer[(index+ORDER-i) % (ORDER + 1)];
+        index++;
+        if (index == ORDER) {
+            index = 0;
         }
-        index = (index + 1) % (ORDER + 1);
+        int sum_index = 0;
+        for (int i = 0; i<ORDER; i++){
+            if (sum_index>0){
+                sum_index--;
+            }
+            else {
+                sum_index = ORDER-1;
+            }
+            out += coefs[i] * buffer[sum_index];
+        }
+
         return out;
     }
 };
 
 template <int ORDER>
 struct VariableCutoffFIRFilter : FIR<ORDER> {
-    void setParametersLow(float cutoff, float samplerate) {
-        for (int n = 0; n <= ORDER; n++){
-            if (n==ORDER/2){
-                this->coefs[n] = 2 * cutoff/samplerate;
+    void setLowPass(float cutoffFreq, float sampleRate) {
+        float wc = 2.f * M_PI*cutoffFreq / sampleRate;
+        float M = ORDER/2;
+
+        for (int i=0; i<ORDER; i++){
+            if (i==M){
+                this->coefs[i] = wc / M_PI;
             }
             else {
-                this->coefs[n] = sin(2 * M_PI * cutoff / samplerate * (n - ORDER / 2)) / (M_PI * (n - ORDER / 2));
+                this->coefs[i] = sin(wc * (i-M)) / (M_PI*(i-M));
             }
-        }
-        for (int n = 0; n <= ORDER; n++) {
-            this->coefs[n] *= 0.54f - 0.46f * cos(2 * M_PI * n / ORDER);
+            this->coefs[i] *= 0.54f - 0.46f * cos(2.f*M_PI*i/ORDER);
         }
     }
-    void setParametersHigh(float cutoff, float samplerate) {
-        for (int n = 0; n <= ORDER; n++){
-            if (n==ORDER/2){
-                this->coefs[n] = 1.f - 2.f * cutoff/samplerate;
+
+    void setHighpass(float cutoffFreq, float sampleRate) {
+        float wc = 2.f * M_PI*cutoffFreq / sampleRate;
+        float M = ORDER/2;
+
+        for (int i=0; i<ORDER; i++){
+            if (i==M){
+                this->coefs[i] = 1.f - wc / M_PI;
             }
             else {
-                this->coefs[n] = -sin(2.f * M_PI * cutoff / samplerate * (n - ORDER / 2.f)) / (M_PI * (n - ORDER / 2.f));
+                this->coefs[i] = -sin(wc * (i-M)) / (M_PI*(i-M));
             }
-        }
-        for (int n = 0; n <= ORDER; n++) {
-            this->coefs[n] *= 0.54f - 0.46f * cos(2 * M_PI * n / ORDER);
+            this->coefs[i] *= 0.54f - 0.46f * cos(2.f*M_PI*i/ORDER);
         }
     }
 };

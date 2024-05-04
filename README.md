@@ -28,7 +28,7 @@ input voltage at a given point in time mathematical functions are needed to comp
 
 The GL-VCF provides both IIR and FIR filtering, the filtering method can be switched in the context menu under `Filter settings`->`mode`.
 The IIR filter is a cascading butterworth filter using 3 biquad filters and passing the output from one on to the next.
-The FIR filter is a basic FIR filter using the window-sinc method.
+The FIR filter is a basic FIR filter using the window-sinc method. Specifically, the hamming window function is used.
 
 ## LFO
 The low frequency oscillator is the second modulation source. This oscillator outputs waves that can have frequencies 

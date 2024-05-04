@@ -103,7 +103,7 @@ struct VCF : Module {
             if (outputs[HP_OUTPUT].isConnected()){
                 FIR_highpass_filter.setHighpass(cutoff, args.sampleRate);
                 float out = FIR_highpass_filter.process(input);
-                outputs[LP_OUTPUT].setVoltage(out);
+                outputs[HP_OUTPUT].setVoltage(out);
             }
         }
 	}

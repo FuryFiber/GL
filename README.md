@@ -26,6 +26,10 @@ the cutoff and a badpass will only allow the harmonics within a range around the
 In hardware this can be done relatively easily. Since in a digital synthesizer the only input the filter has is the 
 input voltage at a given point in time mathematical functions are needed to compute which voltage to send out.
 
+The GL-VCF provides both IIR and FIR filtering, the filtering method can be switched in the context menu under `Filter settings`->`mode`.
+The IIR filter is a cascading butterworth filter using 3 biquad filters and passing the output from one on to the next.
+The FIR filter is a basic FIR filter using the window-sinc method.
+
 ## LFO
 The low frequency oscillator is the second modulation source. This oscillator outputs waves that can have frequencies 
 below the audio frequency spectrum however, often the output frequency can go up to 1024 HZ which is inside the audio 

@@ -60,7 +60,7 @@ A module to synthesize kick drums.
 Currently not implemented.
 
 ## SNARES
-A module to sinthesize snare drums.
+A module to synthesize snare drums.
 Currently not implemented.
 
 

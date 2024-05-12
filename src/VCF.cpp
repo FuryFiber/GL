@@ -82,6 +82,7 @@ struct VCF : Module {
         float input = inputs[IN_INPUT].getVoltage();
 
         // calculate non-normal cutoff frequency and clamp between 0-20kHz
+        float cutoff_param = params[CUT_PARAM].getValue();
         float cutoff_mod_param = params[CUTMOD_PARAM].getValue();
         float cutoff_mod_cv = inputs[CUTMOD_INPUT].getVoltage();
         float cutoff = cutoff_param + cutoff_mod_param*cutoff_mod_cv;

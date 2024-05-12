@@ -1,5 +1,6 @@
 #include "plugin.hpp"
 #include <math.h>
+#include "stdio.h"
 
 using float_4 = simd::float_4;
 const int maxPolyphony = 16;
@@ -55,6 +56,8 @@ struct VCO : Module {
     dsp::MinBlepGenerator<16, 16, float_4> sawMinBlep[maxBanks];
     dsp::MinBlepGenerator<16, 16, float_4> sqrMinBlep[maxBanks];
     float_4 dcOffsetCompensation[maxBanks] = {};
+    bool sync_connected = false;
+    float sync_prev = 0;
 
     float pulsewidth = 1.f;
     int currentPolyphony = 1;
@@ -105,10 +108,17 @@ struct VCO : Module {
         if (currentPolyphony % 4) {
             ++currentBanks;
         }
+
+        // set sync connected
+        sync_connected = inputs[SYNC_INPUT].isConnected();
+
+        // set output channels polyphony
         outputs[SINE_OUTPUT].setChannels(currentPolyphony);
         outputs[SAW_OUTPUT].setChannels(currentPolyphony);
         outputs[SQUARE_OUTPUT].setChannels(currentPolyphony);
+        outputs[TRIANGLE_OUTPUT].setChannels(currentPolyphony);
 
+        // check for connected outputs
         outputSaw = outputs[SAW_OUTPUT].isConnected();
         outputSin = outputs[SINE_OUTPUT].isConnected();
         outputSqr = outputs[SQUARE_OUTPUT].isConnected();
@@ -125,8 +135,7 @@ struct VCO : Module {
         pulsewidth = pulseWidthParam + inputs[PULSEMOD_INPUT].getVoltage() / 10.f * pulseModParam;
         pulsewidth = clamp(pulsewidth, 0.01f, 1.f - 0.01f);
 
-        // Note that assigning a float to a float_4 silently copies the float into all
-        // four floats in the float_4.
+        // calculate pitch
         float_4 pitchParam = params[PITCH_PARAM].value;
         float fmParam = params[FMPARAM_PARAM].getValue();
         for (int bank = 0; bank < currentBanks; ++bank) {
@@ -157,6 +166,19 @@ struct VCO : Module {
             // advance phase and wrap
             phaseAccumulators[bank] += phaseAdvance[bank];
             phaseAccumulators[bank] -= simd::floor(phaseAccumulators[bank]);
+
+            // sync
+            if (sync_connected) {
+                float sync_in = inputs[SYNC_INPUT].getVoltage();
+                if (sync_in >=0 && sync_prev < 0) {
+                    // if sync has crossed over, set all phases to 0
+                    for (int i=0; i<maxBanks; i++){
+                        phaseAccumulators[i] = 0.f;
+                    }
+                }
+                sync_prev = sync_in;
+            }
+
 
             float_4 SawMinBlepValue;
             if (outputSaw) {

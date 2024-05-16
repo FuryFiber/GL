@@ -95,22 +95,28 @@ public:
         this->aCoef[0] = 2.f * (K * K - 1.f) * norm;
         this->aCoef[1] = (1.f - sqrt(2) * K + K * K) * norm;
     }
+
+    /*
+     * Set IIR filter coefficients for it to act as a peak boost filter
+     */
+
+    void setParametersPeak(float cutoff, float Q) {
+        float V0 = -3.f;
+        float K = tan(M_PI * cutoff);
+        float norm = 1.f / (1.f + (1/Q*K) + K*K);
+        this->bCoef[0] = (1+(V0/Q) * K + K*K) * norm;
+        this->bCoef[1] = (2 * (K*K - 1)) * norm;
+        this->bCoef[2] = (1-(V0/Q) * K + K*K) * norm;
+        this->aCoef[0] = this->bCoef[1];
+        this->aCoef[1] = (1.f - (1/Q*K) + K*K) * norm;
+    }
 };
 
 
 struct Cascade6PButterFilter{
     Biquad filters[3];
-    IIR<2> resonance;
+    Biquad resonance;
 public:
-    void setResonance(float cutoff, float T){
-        float r = 0.5f;
-        resonance.bCoef[0] = (1-r*r)/2;
-        resonance.bCoef[1] = 0;
-        resonance.bCoef[2] = -resonance.bCoef[0];
-        resonance.aCoef[0] = -2 * r * cos(2 * M_PI * cutoff * T);
-        resonance.aCoef[1] = r*r;
-    }
-
     /*
      * Set all filter coefficients to lowpass impulse response
      */
@@ -128,6 +134,7 @@ public:
         filters[1].setParametersBand(cutoff, 0.70710678);
         filters[2].setParametersBand(cutoff, 1.9318517);
     }
+
     /*
      * Set all filter coefficients to highpass impulse response
      */
@@ -136,11 +143,19 @@ public:
         filters[1].setParametersHigh(cutoff);
         filters[2].setParametersHigh(cutoff);
     }
+
+    /*
+     * Set resonance filter to work as peak boosting filter
+     */
+    void setResonance(float cutoff, float Q) {
+        resonance.setParametersPeak(cutoff, Q);
+    }
+
     float process(float in){
         float out = filters[0].process(in);
         out = filters[1].process(out);
         out = filters[2].process(out);
-        //out += resonance.process(in);
+        out = resonance.process(out);
 
         return out;
     }

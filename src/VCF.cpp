@@ -93,11 +93,26 @@ struct VCF : Module {
             cutoff = 0;
         }
 
+        // get resonance
+        float res_param = params[RES_PARAM].getValue();
+        float res_mod_param = params[RESMOD_PARAM].getValue();
+        float res_mod_in = inputs[RESMOD_INPUT].getVoltage();
+        float Q = res_param + res_mod_in * res_mod_param;
+        if (Q > 1.f){
+            Q = 1.f;
+        }
+        if (Q <= 0.f) {
+            Q = 0.00001f;
+        }
+
         // In case of IIR filtering mode
         if (mode == 0){
 
             // Normalize cutoff frequency because filter expects value between 0.f 0.5f
             float normalized_cutoff = cutoff/40000.f;
+
+            // Set peak boost at cutoff frequency
+            IIR_lowpass_filter.setResonance(normalized_cutoff, Q);
 
             // If low pass output is connected, perform lowpass filtering and send to lowpass output
             if (outputs[LP_OUTPUT].isConnected()){

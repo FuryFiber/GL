@@ -13,17 +13,17 @@
 struct VCF : Module {
 	enum ParamId {
 		CUT_PARAM,
-		RES_PARAM,
-		DRIVE_PARAM,
-		RESMOD_PARAM,
+		GAIN_PARAM,
+		BANDWIDTH_PARAM,
+        GAINMOD_PARAM,
 		CUTMOD_PARAM,
-		DRIVEMOD_PARAM,
+        BANDWIDTHMOD_PARAM,
 		PARAMS_LEN
 	};
 	enum InputId {
-		RESMOD_INPUT,
+        GAINMOD_INPUT,
 		CUTMOD_INPUT,
-		DRIVEMOD_INPUT,
+        BANDWIDTHMOD_INPUT,
 		IN_INPUT,
 		INPUTS_LEN
 	};
@@ -52,14 +52,14 @@ struct VCF : Module {
 	VCF() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
         configParam(CUT_PARAM, 0.001f, 20000.f, 1000.f, "Cutoff frequency", "Hz");
-		configParam(RES_PARAM, 0.f, 1.f, 0.f, "Resonance");
-		configParam(DRIVE_PARAM, 0.f, 1.f, 0.f, "Drive");
-		configParam(RESMOD_PARAM, -1.f, 1.f, 0.f, "Resonance modulation", "%", 0.f, 100.f);
+		configParam(GAIN_PARAM, 0.f, 10.f, 0.f, "Resonance gain", "dB");
+		configParam(BANDWIDTH_PARAM, 0.f, 1.f, 0.f, "Resonance bandwidth ratio");
+		configParam(GAINMOD_PARAM, 0.f, 1.f, 0.f, "Resonance gain modulation", "%", 0.f, 100.f);
 		configParam(CUTMOD_PARAM, -1.f, 1.f, 0.f, "Cutoff frequency modulation", "%", 0.f, 100.f);
-		configParam(DRIVEMOD_PARAM, -1.f, 1.f, 0.f, "Drive modulation", "%", 0.f, 100.f);
-		configInput(RESMOD_INPUT, "Resonance modulation");
+		configParam(BANDWIDTHMOD_PARAM, 0.f, 1.f, 0.f, "Resonance bandwidth modulation", "%", 0.f, 100.f);
+		configInput(GAINMOD_INPUT, "Resonance modulation");
 		configInput(CUTMOD_INPUT, "Cutoff frequency modulation");
-		configInput(DRIVEMOD_INPUT, "Drive modulation");
+		configInput(BANDWIDTHMOD_INPUT, "Drive modulation");
 		configInput(IN_INPUT, "Input");
 		configOutput(LP_OUTPUT, "Lowpass");
 		configOutput(BP_OUTPUT, "Bandpass");
@@ -93,26 +93,27 @@ struct VCF : Module {
             cutoff = 0;
         }
 
-        // get resonance
-        float res_param = params[RES_PARAM].getValue();
-        float res_mod_param = params[RESMOD_PARAM].getValue();
-        float res_mod_in = inputs[RESMOD_INPUT].getVoltage();
-        float Q = res_param + res_mod_in * res_mod_param;
-        if (Q > 1.f){
-            Q = 1.f;
-        }
-        if (Q <= 0.f) {
-            Q = 0.00001f;
-        }
-
+        // get resonance parameters
+        // gain
+        float gain_param = params[GAIN_PARAM].getValue();
+        float gain_mod_param = params[GAINMOD_PARAM].getValue();
+        float gain_mod_in = inputs[GAINMOD_INPUT].getVoltage();
+        float G = gain_param + gain_mod_in * gain_mod_param;
+        clamp(G, 0.001f, 10.f);
+        // bandwidth
+        float bw_param = params[BANDWIDTH_PARAM].getValue();
+        float bw_mod_param = params[BANDWIDTHMOD_PARAM].getValue();
+        float bw_mod_in = inputs[BANDWIDTHMOD_INPUT].getVoltage();
+        float Q = bw_param + bw_mod_in*bw_mod_param;
+        clamp(Q, 0.001f, 1.f);
         // In case of IIR filtering mode
         if (mode == 0){
 
             // Normalize cutoff frequency because filter expects value between 0.f 0.5f
-            float normalized_cutoff = cutoff/40000.f;
+            float normalized_cutoff = cutoff/args.sampleRate;
 
             // Set peak boost at cutoff frequency
-            IIR_lowpass_filter.setResonance(normalized_cutoff, Q);
+            IIR_lowpass_filter.setResonance(normalized_cutoff, G, Q);
 
             // If low pass output is connected, perform lowpass filtering and send to lowpass output
             if (outputs[LP_OUTPUT].isConnected()){
@@ -173,16 +174,16 @@ struct VCFWidget : ModuleWidget {
 
         // parameters
 		addParam(createParamCentered<RoundLargeBlackKnob>(mm2px(Vec(30.48, 20.71)), module, VCF::CUT_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(11.678, 42.935)), module, VCF::RES_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(49.664, 42.935)), module, VCF::DRIVE_PARAM));
-		addParam(createParamCentered<Trimpot>(mm2px(Vec(11.296, 74.914)), module, VCF::RESMOD_PARAM));
+		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(11.678, 42.935)), module, VCF::GAIN_PARAM));
+		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(49.664, 42.935)), module, VCF::BANDWIDTH_PARAM));
+		addParam(createParamCentered<Trimpot>(mm2px(Vec(11.296, 74.914)), module, VCF::GAINMOD_PARAM));
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(30.508, 74.914)), module, VCF::CUTMOD_PARAM));
-		addParam(createParamCentered<Trimpot>(mm2px(Vec(49.664, 74.914)), module, VCF::DRIVEMOD_PARAM));
+		addParam(createParamCentered<Trimpot>(mm2px(Vec(49.664, 74.914)), module, VCF::BANDWIDTHMOD_PARAM));
 
         // inputs
-		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(11.296, 91.547)), module, VCF::RESMOD_INPUT));
+		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(11.296, 91.547)), module, VCF::GAINMOD_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30.508, 91.547)), module, VCF::CUTMOD_INPUT));
-		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(49.664, 91.547)), module, VCF::DRIVEMOD_INPUT));
+		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(49.664, 91.547)), module, VCF::BANDWIDTHMOD_INPUT));
 		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(11.296, 108.874)), module, VCF::IN_INPUT));
 
         // outputs

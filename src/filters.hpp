@@ -1,5 +1,5 @@
 #include "math.h"
-
+#include "stdio.h"
 
 /*
  * IIR convolution function implementation with arbitrary order
@@ -100,15 +100,26 @@ public:
      * Set IIR filter coefficients for it to act as a peak boost filter
      */
 
-    void setParametersPeak(float cutoff, float Q) {
-        float V0 = -3.f;
+    void setParametersPeak(float cutoff, float G, float Q) {
+        float V0 = pow(10, G/20);
         float K = tan(M_PI * cutoff);
-        float norm = 1.f / (1.f + (1/Q*K) + K*K);
-        this->bCoef[0] = (1+(V0/Q) * K + K*K) * norm;
-        this->bCoef[1] = (2 * (K*K - 1)) * norm;
-        this->bCoef[2] = (1-(V0/Q) * K + K*K) * norm;
-        this->aCoef[0] = this->bCoef[1];
-        this->aCoef[1] = (1.f - (1/Q*K) + K*K) * norm;
+
+        if (G>0){
+            float norm = 1.f / (1.f + ((1/Q)*K) + K*K);
+            this->bCoef[0] = (1+(V0/Q) * K + K*K) * norm;
+            this->bCoef[1] = (2 * (K*K - 1)) * norm;
+            this->bCoef[2] = (1-(V0/Q) * K + K*K) * norm;
+            this->aCoef[0] = this->bCoef[1];
+            this->aCoef[1] = (1.f - ((1/Q)*K) + K*K) * norm;
+        }
+        else {
+            float norm = 1.f / (1.f + ((1/(V0*Q))*K) + K*K);
+            this->bCoef[0] = (1+(1/Q) * K + K*K) * norm;
+            this->bCoef[1] = (2 * (K*K - 1)) * norm;
+            this->bCoef[2] = (1-(1/Q) * K + K*K) * norm;
+            this->aCoef[0] = this->bCoef[1];
+            this->aCoef[1] = (1.f - ((1/(V0*Q))*K) + K*K) * norm;
+        }
     }
 };
 
@@ -147,8 +158,8 @@ public:
     /*
      * Set resonance filter to work as peak boosting filter
      */
-    void setResonance(float cutoff, float Q) {
-        resonance.setParametersPeak(cutoff, Q);
+    void setResonance(float cutoff, float G, float Q) {
+        resonance.setParametersPeak(cutoff, G, Q);
     }
 
     float process(float in){

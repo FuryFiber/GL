@@ -169,13 +169,17 @@ struct VCO : Module {
 
             // sync
             if (sync_connected) {
+                // get sync
                 float sync_in = inputs[SYNC_INPUT].getVoltage();
+
                 if (sync_in >=0 && sync_prev < 0) {
                     // if sync has crossed over, set all phases to 0
                     for (int i=0; i<maxBanks; i++){
                         phaseAccumulators[i] = 0.f;
                     }
                 }
+
+                // update sync
                 sync_prev = sync_in;
             }
 

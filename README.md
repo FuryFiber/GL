@@ -9,25 +9,28 @@ refactoring/updating.
 ![](/docs/ALL.png)
 ## VCO
 The voltage controlled oscillator is the sound source of the synthesiser. It creates different wave forms within the 
-audio frequency spectrum. A basic oscillator is able to output a sine, square, triangle and saw wave. Ideally it has 
+audio frequency spectrum. This oscillator is able to output a sine, square, triangle and saw wave. It has 
 modulation inputs to control the frequency. Both a standard 1 volt per octave to control the base frequency and a 
-frequency modulation input should be present. Additionally, a sync input could also be added.
+frequency modulation input are present.
+The VCO also implements sync which means that another VCO signal can be used to reset the phase of the first VCO's signal.
 
 ## VCA
-The voltage controlled amplifier controls the amplitude of a wave. This is a very simple module that needs an input for 
+The voltage controlled amplifier controls the amplitude of a wave. This is a very simple module that has an input for 
 the wave that is being controlled and an input to modulate the amplitude using modulation sources. It then outputs the 
 modified wave.
 
 ## VCF
-The voltage controlled filter will be the most intricate of the proposed modules. A filter is used to remove unwanted 
+The voltage controlled filter is be the most intricate of the proposed modules. A filter is used to remove unwanted 
 harmonics. A filter often supports one or more of the following types of filtering: low pass, high pass and band pass. 
-A low pass filter will remove harmonics above the cutoff frequency, a high pass filter will remove the harmonics below 
+A low pass filter removes harmonics above the cutoff frequency, a high pass filter removes the harmonics below 
 the cutoff and a badpass will only allow the harmonics within a range around the cutoff frequency to pass through.
 In hardware this can be done relatively easily. Since in a digital synthesizer the only input the filter has is the 
 input voltage at a given point in time mathematical functions are needed to compute which voltage to send out.
 
 The GL-VCF provides both IIR and FIR filtering, the filtering method can be switched in the context menu under `Filter settings`->`mode`.
 The IIR filter is a cascading butterworth filter using 3 biquad filters and passing the output from one on to the next.
+The IIR filter also implements resonance in the form of a biquad peak boost filter. This filter is applied after the 3
+biquad filters. Currently the filter becomes unstable and crashes after a couple seconds when gain or bandwidth are 0.
 The FIR filter is a basic FIR filter using the window-sinc method. Specifically, the hamming window function is used.
 
 ## LFO

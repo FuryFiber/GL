@@ -86,8 +86,8 @@ struct VCF : Module {
         float cutoff_mod_param = params[CUTMOD_PARAM].getValue();
         float cutoff_mod_cv = inputs[CUTMOD_INPUT].getVoltage();
         float cutoff = cutoff_param + cutoff_mod_param*cutoff_mod_cv;
-        if (cutoff > 20000){
-            cutoff = 20000;
+        if (cutoff > args.sampleRate){
+            cutoff = args.sampleRate;
         }
         if (cutoff < 0) {
             cutoff = 0;

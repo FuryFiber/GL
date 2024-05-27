@@ -18,6 +18,7 @@ extern Model* modelNOISE;
 extern Model* modelHATS;
 extern Model* modelKICKS;
 extern Model* modelSNARES;
+extern Model* modelWAVECRAFTER;
 
 // Custom module components
 struct GL_SlidePot : app::SvgSlider {

@@ -85,7 +85,9 @@ struct VCF : Module {
         float cutoff_param = params[CUT_PARAM].getValue();
         float cutoff_mod_param = params[CUTMOD_PARAM].getValue();
         float cutoff_mod_cv = inputs[CUTMOD_INPUT].getVoltage();
-        float cutoff = cutoff_param + cutoff_mod_param*cutoff_mod_cv;
+        float cutoff = cutoff_param + cutoff_mod_param*cutoff_mod_cv*1000;
+        printf("cutoff_param: %f\n", cutoff_param);
+        printf("cutoff: %f\n", cutoff);
         if (cutoff > args.sampleRate){
             cutoff = args.sampleRate;
         }
@@ -114,6 +116,8 @@ struct VCF : Module {
 
             // Set peak boost at cutoff frequency
             IIR_lowpass_filter.setResonance(normalized_cutoff, G, Q);
+            IIR_bandpass_filter.setResonance(normalized_cutoff, G, Q);
+            IIR_highpass_filter.setResonance(normalized_cutoff, G, Q);
 
             // If low pass output is connected, perform lowpass filtering and send to lowpass output
             if (outputs[LP_OUTPUT].isConnected()){

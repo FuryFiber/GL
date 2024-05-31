@@ -53,8 +53,8 @@ struct VCF : Module {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
         configParam(CUT_PARAM, 0.001f, 20000.f, 1000.f, "Cutoff frequency", "Hz");
 		configParam(GAIN_PARAM, 0.f, 10.f, 0.f, "Resonance gain", "dB");
-		configParam(BANDWIDTH_PARAM, 0.f, 1.f, 0.f, "Resonance bandwidth ratio");
-		configParam(GAINMOD_PARAM, 0.f, 1.f, 0.f, "Resonance gain modulation", "%", 0.f, 100.f);
+		configParam(BANDWIDTH_PARAM, -1.f, 1.f, 0.f, "Resonance bandwidth ratio");
+		configParam(GAINMOD_PARAM, -1.f, 1.f, 0.f, "Resonance gain modulation", "%", 0.f, 100.f);
 		configParam(CUTMOD_PARAM, -1.f, 1.f, 0.f, "Cutoff frequency modulation", "%", 0.f, 100.f);
 		configParam(BANDWIDTHMOD_PARAM, 0.f, 1.f, 0.f, "Resonance bandwidth modulation", "%", 0.f, 100.f);
 		configInput(GAINMOD_INPUT, "Resonance modulation");

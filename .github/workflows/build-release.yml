@@ -4,6 +4,8 @@ on:
     branches:
       - main
       - dev
+    tags:
+      - 'v*'
 jobs:
 #  Build-Windows:
 #    runs-on: ubuntu-latest

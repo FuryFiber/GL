@@ -37,6 +37,9 @@ jobs:
           export RACK_DIR=Rack-SDK
       - name: checkout repository source
         uses: actions/checkout@v4
+      - name: debug
+        run: |
+          ls
       - name: move into source directory
         run: |
           cd GL

@@ -26,14 +26,16 @@ jobs:
 
   Build-Windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
 #    needs: Create-release
     steps:
+      - uses: msys2/setup-msys2@v2
       - name: checkout repository code
         uses: actions/checkout@v4
       - name: install dependencies
-        shell: msys2
         run: |
-          C:\msys64\usr\bin\bash.exe
           pacman -Syu
 #  Build-and-release-Linux:
 #    runs-on: ubuntu-latest

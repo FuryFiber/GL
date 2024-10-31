@@ -37,6 +37,10 @@ jobs:
           export RACK_DIR=Rack-SDK
       - name: checkout repository source
         uses: actions/checkout@v4
+      - name: debug
+        run: |
+          ls
+          ls RACK-SDK
       - name: build plugin
         run: |
           RACK_DIR=RACK-SDK make dep && make dist

@@ -6,7 +6,7 @@ on:
       - dev
 jobs:
 #  Build-Windows:
-#    runs-on: ubuntu-latest
+#    runs-on: windows-latest
 #    steps:
   Build-and-release-Linux:
     runs-on: ubuntu-latest
@@ -19,6 +19,7 @@ jobs:
         with:
           tag_name: v${{ github.event.head_commit.message }}
           release_name: GL v${{ github.event.head_commit.message }}
+          body_path: release-notes.md
           draft: false
           prerelease: false
       - name: install dependencies

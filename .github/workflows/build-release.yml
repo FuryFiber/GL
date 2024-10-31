@@ -73,7 +73,7 @@ jobs:
 #          asset_name: GL-${{ github.event.head_commit.message }}-lin-x64.vcvplugin
 #          asset_content_type: application/octet-stream
 
-  Build-and-release-mac-arm:
+  Build-and-release-mac-intel:
     runs-on: macos-13
 #    needs: Create-release
     steps:
@@ -86,7 +86,7 @@ jobs:
         run: |
           cd ..
           wget https://vcvrack.com/downloads/Rack-SDK-latest-mac-x64+arm64.zip
-          unzip Rack-SDK-latest-lin-x64.zip
+          unzip Rack-SDK-latest-mac-x64+arm64.zip
           cd GL
           make dep && make dist
       - name: Upload Release Asset

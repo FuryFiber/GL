@@ -28,7 +28,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        shell: mingw64
+        shell: msys2 {0}
 #    needs: Create-release
     steps:
       - uses: msys2/setup-msys2@v2
@@ -39,11 +39,7 @@ jobs:
         uses: actions/checkout@v4
       - name: build plugin
         run: |
-          cd ..
-          wget https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
-          unzip Rack-SDK-latest-lin-x64.zip
-          cd GL
-          make dep && make dist
+          mingw64
 
 #  Build-and-release-Linux:
 #    runs-on: ubuntu-latest

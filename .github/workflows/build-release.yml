@@ -32,6 +32,8 @@ jobs:
       - name: unzip RACK SDK
         run: |
           unzip Rack-SDK-latest-lin-x64.zip
+          ls
+          pwd
       - name: set RACK SDK environment variable
         run: |
           export RACK_DIR=Rack-SDK

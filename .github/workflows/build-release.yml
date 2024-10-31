@@ -40,11 +40,22 @@ jobs:
         uses: actions/checkout@v4
       - name: build plugin
         run: |
+          echo $0
           cd ..
           wget https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
           unzip Rack-SDK-latest-lin-x64.zip
           cd GL
           make dep && make dist
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+         upload_url: ${{ needs.Create-release.outputs.upload_url }}
+         asset_path: dist/GL-2.0.0-lin-x64.vcvplugin
+         asset_name: GL-${{ github.event.head_commit.message }}-lin-x64.vcvplugin
+         asset_content_type: application/octet-stream
 
 #  Build-and-release-Linux:
 #    runs-on: ubuntu-latest

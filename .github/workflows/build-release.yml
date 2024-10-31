@@ -34,8 +34,11 @@ jobs:
           ls
           wget https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
           ls
+          pwd
       - name: unzip RACK SDK
         run: |
+          ls
+          pwd
           unzip Rack-SDK-latest-lin-x64.zip
           ls
           pwd

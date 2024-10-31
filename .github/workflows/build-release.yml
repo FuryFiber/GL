@@ -34,7 +34,7 @@ jobs:
           wget https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
           unzip Rack-SDK-latest-lin-x64.zip
           cd GL
-          RACK_DIR=../Rack-SDK make dep && make dist
+          RACK_DIR=../test make dep && make dist
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1

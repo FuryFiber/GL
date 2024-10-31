@@ -42,7 +42,7 @@ jobs:
       - name: debug
         run: |
           ls ..
-          ls RACK-SDK
+          pwd
       - name: build plugin
         run: |
           RACK_DIR=../RACK-SDK make dep && make dist

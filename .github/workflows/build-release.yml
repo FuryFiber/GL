@@ -31,8 +31,9 @@ jobs:
       - name: checkout repository code
         uses: actions/checkout@v4
       - name: install dependencies
+        shell: msys2
         run: |
-          choco install msys2
+          pacman -Syu
 #  Build-and-release-Linux:
 #    runs-on: ubuntu-latest
 #    needs: Create-release

@@ -31,23 +31,9 @@ jobs:
       - name: get RACK SDK
         run: |
           cd ..
-          ls
           wget https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
-          ls
-          pwd
-      - name: unzip RACK SDK
-        run: |
-          ls
-          pwd
           unzip Rack-SDK-latest-lin-x64.zip
-          ls
-          pwd
-      - name: debug
-        run: |
-          ls ..
-          pwd
-      - name: build plugin
-        run: |
+          cd GL
           RACK_DIR=../RACK-SDK make dep && make dist
       - name: Upload Release Asset
         id: upload-release-asset

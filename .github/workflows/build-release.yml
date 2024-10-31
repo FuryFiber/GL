@@ -40,8 +40,8 @@ jobs:
       - name: build plugin
         run: |
           cd ..
-          wget https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
-          unzip Rack-SDK-latest-lin-x64.zip
+          msys2 wget https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
+          msys2 unzip Rack-SDK-latest-lin-x64.zip
           cd GL
           mingw64 make dep && make dist
       - name: Upload Release Asset

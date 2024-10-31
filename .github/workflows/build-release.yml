@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - dev
 jobs:
   Create-release:
     runs-on: ubuntu-latest

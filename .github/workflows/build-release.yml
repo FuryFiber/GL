@@ -33,6 +33,7 @@ jobs:
       - name: install dependencies
         shell: msys2
         run: |
+          C:\msys64\usr\bin\bash.exe
           pacman -Syu
 #  Build-and-release-Linux:
 #    runs-on: ubuntu-latest

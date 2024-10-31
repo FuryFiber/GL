@@ -123,6 +123,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.Create-release.outputs.upload_url }}
-          asset_path: dist/GL-2.0.0-lin-arm.vcvplugin
-          asset_name: GL-${{ github.event.head_commit.message }}-mac-arm.vcvplugin
+          asset_path: dist/GL-2.0.0-mac-arm64.vcvplugin
+          asset_name: GL-${{ github.event.head_commit.message }}-mac-arm64.vcvplugin
           asset_content_type: application/octet-stream

@@ -10,14 +10,18 @@
 2. Copy the file into `~/.local/share/Rack2/plugins-lin-x64`
 3. When launching VCV rack it should automatically unpack the plugin
 
-### Using binary
-1. Download `GL-0.0.2-alpha-lin-x64.zip`
-2. Extract the zip into `~/.local/share/Rack2/plugins-lin-x64`
-
 ##  Mac x64
-Not yet available
+1. Download `GL-0.0.2-alpha-mac-x64.vcvplugin`
+2. Copy the file into `~/Library/Application Support/Rack2/`
+3. When launching VCV rack it should automatically unpack the plugin
+
+## Mac arm64
+1. Download `GL-0.0.2-alpha-mac-arm64.vcvplugin`
+2. Copy the file into `~/Library/Application Support/Rack2/`
+3. When launching VCV rack it should automatically unpack the plugin
 
 ## Windows
+not supported yet
 
 ## Build from source (works for all operating systems)
 1. Clone repository

@@ -5,56 +5,39 @@ on:
       - main
       - dev
 jobs:
-  Create-release:
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-      - name: checkout repository source
-        uses: actions/checkout@v4
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: v${{ github.event.head_commit.message }}
-          release_name: GL v${{ github.event.head_commit.message }}
-          body_path: release-notes.md
-          draft: false
-          prerelease: false
-
-#  Build-and-release-Windows:
-#    runs-on: windows-latest
-#    defaults:
-#      run:
-#        shell: msys2 {0}
-#    needs: Create-release
+#  Create-release:
+#    runs-on: ubuntu-latest
+#    outputs:
+#      upload_url: ${{ steps.create_release.outputs.upload_url }}
 #    steps:
-#      - uses: msys2/setup-msys2@v2
-#        with:
-#          mysystem: mingw64
-#          update: true
-#          install: git wget make tar unzip zip mingw-w64-x86_64-gcc mingw-w64-x86_64-gdb mingw-w64-x86_64-cmake autoconf automake libtool mingw-w64-x86_64-jq python zstd mingw-w64-x86_64-pkgconf
-#      - name: checkout repository code
+#      - name: checkout repository source
 #        uses: actions/checkout@v4
-#      - name: build plugin
-#        run: |
-#          cd ..
-#          wget https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
-#          unzip Rack-SDK-latest-lin-x64.zip
-#          cd GL
-#          make dep && make dist
+#      - name: Create Release
+#        id: create_release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+#        with:
+#          tag_name: v${{ github.event.head_commit.message }}
+#          release_name: GL v${{ github.event.head_commit.message }}
+#          body_path: release-notes.md
+#          draft: false
+#          prerelease: false
 
-  Build-and-release-Linux:
-    runs-on: ubuntu-latest
-    needs: Create-release
+  Build-and-release-Windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+#    needs: Create-release
     steps:
-      - name: checkout repository source
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: mingw64
+          update: true
+          install: git wget make tar unzip zip mingw-w64-x86_64-gcc mingw-w64-x86_64-gdb mingw-w64-x86_64-cmake autoconf automake libtool mingw-w64-x86_64-jq python zstd mingw-w64-x86_64-pkgconf
+      - name: checkout repository code
         uses: actions/checkout@v4
-      - name: install dependencies
-        run: |
-          sudo apt install unzip git gdb wget curl cmake libx11-dev libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev zlib1g-dev libasound2-dev libgtk2.0-dev libgtk-3-dev libjack-jackd2-dev jq zstd libpulse-dev pkg-config
       - name: build plugin
         run: |
           cd ..
@@ -62,67 +45,84 @@ jobs:
           unzip Rack-SDK-latest-lin-x64.zip
           cd GL
           make dep && make dist
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.Create-release.outputs.upload_url }}
-          asset_path: dist/GL-2.0.0-lin-x64.vcvplugin
-          asset_name: GL-${{ github.event.head_commit.message }}-lin-x64.vcvplugin
-          asset_content_type: application/octet-stream
 
-  Build-and-release-mac-intel:
-    runs-on: macos-13
-    needs: Create-release
-    steps:
-      - name: checkout repository source
-        uses: actions/checkout@v4
-      - name: install dependencies
-        run: |
-          brew install git wget cmake autoconf automake libtool jq python zstd pkg-config
-      - name: build plugin
-        run: |
-          cd ..
-          wget https://vcvrack.com/downloads/Rack-SDK-latest-mac-x64+arm64.zip
-          unzip Rack-SDK-latest-mac-x64+arm64.zip
-          cd GL
-          make dep && make dist
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.Create-release.outputs.upload_url }}
-          asset_path: dist/GL-2.0.0-mac-x64.vcvplugin
-          asset_name: GL-${{ github.event.head_commit.message }}-mac-x64.vcvplugin
-          asset_content_type: application/octet-stream\
-
-  Build-and-release-mac-arm:
-    runs-on: macos-latest
-    needs: Create-release
-    steps:
-      - name: checkout repository source
-        uses: actions/checkout@v4
-      - name: install dependencies
-        run: |
-          brew install git wget cmake autoconf automake libtool jq python zstd pkg-config
-      - name: build plugin
-        run: |
-          cd ..
-          wget https://vcvrack.com/downloads/Rack-SDK-latest-mac-x64+arm64.zip
-          unzip Rack-SDK-latest-mac-x64+arm64.zip
-          cd GL
-          make dep && make dist
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.Create-release.outputs.upload_url }}
-          asset_path: dist/GL-2.0.0-mac-arm64.vcvplugin
-          asset_name: GL-${{ github.event.head_commit.message }}-mac-arm64.vcvplugin
-          asset_content_type: application/octet-stream
+#  Build-and-release-Linux:
+#    runs-on: ubuntu-latest
+#    needs: Create-release
+#    steps:
+#      - name: checkout repository source
+#        uses: actions/checkout@v4
+#      - name: install dependencies
+#        run: |
+#          sudo apt install unzip git gdb wget curl cmake libx11-dev libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev zlib1g-dev libasound2-dev libgtk2.0-dev libgtk-3-dev libjack-jackd2-dev jq zstd libpulse-dev pkg-config
+#      - name: build plugin
+#        run: |
+#          cd ..
+#          wget https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
+#          unzip Rack-SDK-latest-lin-x64.zip
+#          cd GL
+#          make dep && make dist
+#      - name: Upload Release Asset
+#        id: upload-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ needs.Create-release.outputs.upload_url }}
+#          asset_path: dist/GL-2.0.0-lin-x64.vcvplugin
+#          asset_name: GL-${{ github.event.head_commit.message }}-lin-x64.vcvplugin
+#          asset_content_type: application/octet-stream
+#
+#  Build-and-release-mac-intel:
+#    runs-on: macos-13
+#    needs: Create-release
+#    steps:
+#      - name: checkout repository source
+#        uses: actions/checkout@v4
+#      - name: install dependencies
+#        run: |
+#          brew install git wget cmake autoconf automake libtool jq python zstd pkg-config
+#      - name: build plugin
+#        run: |
+#          cd ..
+#          wget https://vcvrack.com/downloads/Rack-SDK-latest-mac-x64+arm64.zip
+#          unzip Rack-SDK-latest-mac-x64+arm64.zip
+#          cd GL
+#          make dep && make dist
+#      - name: Upload Release Asset
+#        id: upload-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ needs.Create-release.outputs.upload_url }}
+#          asset_path: dist/GL-2.0.0-mac-x64.vcvplugin
+#          asset_name: GL-${{ github.event.head_commit.message }}-mac-x64.vcvplugin
+#          asset_content_type: application/octet-stream\
+#
+#  Build-and-release-mac-arm:
+#    runs-on: macos-latest
+#    needs: Create-release
+#    steps:
+#      - name: checkout repository source
+#        uses: actions/checkout@v4
+#      - name: install dependencies
+#        run: |
+#          brew install git wget cmake autoconf automake libtool jq python zstd pkg-config
+#      - name: build plugin
+#        run: |
+#          cd ..
+#          wget https://vcvrack.com/downloads/Rack-SDK-latest-mac-x64+arm64.zip
+#          unzip Rack-SDK-latest-mac-x64+arm64.zip
+#          cd GL
+#          make dep && make dist
+#      - name: Upload Release Asset
+#        id: upload-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ needs.Create-release.outputs.upload_url }}
+#          asset_path: dist/GL-2.0.0-mac-arm64.vcvplugin
+#          asset_name: GL-${{ github.event.head_commit.message }}-mac-arm64.vcvplugin
+#          asset_content_type: application/octet-stream

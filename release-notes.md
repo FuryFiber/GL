@@ -21,9 +21,11 @@
 3. When launching VCV rack it should automatically unpack the plugin
 
 ## Windows
-not supported yet
+1. Download `GL-0.0.2-alpha-win-x64.vcvplugin`
+2. Copy the file into `C:\Users\<username>\AppData\Local\Rack2\`
+3. When launching VCV rack it should automatically unpack the plugin
 
-## Build from source (works for all operating systems)
+## Build from source
 1. Clone repository
 4. Download the Rack SDK for your operating system ([Rack build guide](https://vcvrack.com/manual/Building#Building-Rack-plugins))
 5. Unzip Rack SDK and set `RACK_DIR` environment variable to its path: `export RACK_DIR=<RACK_SDK location>`

@@ -33,13 +33,18 @@ jobs:
     steps:
       - uses: msys2/setup-msys2@v2
         with:
+          mysystem: mingw64
           update: true
           install: git wget make tar unzip zip mingw-w64-x86_64-gcc mingw-w64-x86_64-gdb mingw-w64-x86_64-cmake autoconf automake libtool mingw-w64-x86_64-jq python zstd mingw-w64-x86_64-pkgconf
       - name: checkout repository code
         uses: actions/checkout@v4
       - name: build plugin
         run: |
-          mingw64
+          cd ..
+          wget https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
+          unzip Rack-SDK-latest-lin-x64.zip
+          cd GL
+          make dep && make dist
 
 #  Build-and-release-Linux:
 #    runs-on: ubuntu-latest

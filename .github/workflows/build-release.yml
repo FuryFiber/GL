@@ -28,8 +28,8 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        shell: msys2 {0}
-#    needs: Create-release
+        shell: mingw64
+    needs: Create-release
     steps:
       - uses: msys2/setup-msys2@v2
         with:

@@ -45,7 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ jobs.Create-release.steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ needs.Create-release.steps.create_release.outputs.upload_url }}
           asset_path: dist/GL-2.0.0-lin-x64.vcvplugin
           asset_name: GL-${{ github.event.head_commit.message }}-lin-x64.vcvplugin
 
